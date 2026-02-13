@@ -1,41 +1,42 @@
 # Prerequisites
 *.d
 
-# Compiled Object files
+# Compiled object files
 *.slo
 *.lo
 *.o
 *.obj
 
-# Precompiled Headers
+# Precompiled headers
 *.gch
 *.pch
 
-# Linker files
+# Linker / debug files
 *.ilk
-
-# Debugger Files
 *.pdb
+*.dwo
 
-# Compiled Dynamic libraries
+# Dynamic libraries
 *.so
 *.dylib
 *.dll
 
-# Fortran module files
-*.mod
-*.smod
-
-# Compiled Static libraries
+# Static libraries
 *.lai
 *.la
 *.a
 *.lib
+
+# Fortran modules
+*.mod
+*.smod
 
 # Executables
 *.exe
 *.out
 *.app
 
-# debug information files
-*.dwo
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
