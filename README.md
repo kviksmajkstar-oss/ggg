@@ -75,20 +75,20 @@ pytest
 Добавлен инсталляторный пайплайн через Inno Setup.
 
 ```powershell
-powershell -ExecutionPolicy Bypass -File .\scripts\build_windows_setup.ps1 -AppVersion 1.0.3
+powershell -ExecutionPolicy Bypass -File .\scripts\build_windows_setup.ps1 -AppVersion 1.0.4
 ```
 
-Результат: `dist\\installer\\OneMusicAI-Setup-1.0.3.exe`.
+Результат: `dist\\installer\\OneMusicAI-Setup-1.0.4.exe`.
 
 ## Инсталлер как программа (OneMusicInstaller.exe)
 
 Добавлен отдельный GUI-инсталлер как приложение (`OneMusicInstaller.exe`).
 
 ```powershell
-powershell -ExecutionPolicy Bypass -File .\installer\build_installer_program.ps1 -Version 1.0.4
+powershell -ExecutionPolicy Bypass -File .\installer\build_installer_program.ps1 -Version 1.0.5
 ```
 
-Результат: `dist\\installer-program\\OneMusicInstaller-1.0.4.exe`.
+Результат: `dist\\installer-program\\OneMusicInstaller-1.0.5.exe`.
 
 
 > Если в PowerShell ошибка `npm is not recognized`, установите Node.js LTS и перезапустите терминал,
@@ -96,3 +96,6 @@ powershell -ExecutionPolicy Bypass -File .\installer\build_installer_program.ps1
 
 > Если в PowerShell ошибка `python is not recognized` или `.venv\Scripts\python` не найден,
 > установите Python 3.10+ и перезапустите терминал (либо используйте `py -3`, скрипт это учитывает автоматически).
+
+> Если venv не создаётся, скрипт теперь проверяет несколько путей к python в окружении
+> (`Scripts/python.exe`, `Scripts/python`, `bin/python`, `bin/python3`) и покажет, что именно проверялось.

@@ -12,12 +12,12 @@
 ## Сборка EXE (Windows)
 
 ```powershell
-powershell -ExecutionPolicy Bypass -File .\installer\build_installer_program.ps1 -Version 1.0.4
+powershell -ExecutionPolicy Bypass -File .\installer\build_installer_program.ps1 -Version 1.0.5
 ```
 
 Выходной файл:
 
-- `dist\installer-program\OneMusicInstaller-1.0.4.exe`
+- `dist\installer-program\OneMusicInstaller-1.0.5.exe`
 
 ## Важно
 
@@ -30,3 +30,6 @@ powershell -ExecutionPolicy Bypass -File .\installer\build_installer_program.ps1
 
 
 Если ошибка связана с `.venv\Scripts\python`, в новых скриптах добавлена проверка создания venv и fallback через `py -3`.
+
+
+Если создание venv прошло нестандартно, скрипт проверяет пути: `Scripts/python.exe`, `Scripts/python`, `bin/python`, `bin/python3`.

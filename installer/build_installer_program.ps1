@@ -1,5 +1,5 @@
 Param(
-  [string]$Version = "1.0.4",
+  [string]$Version = "1.0.5",
   [switch]$SkipFrontendBuild
 )
 
@@ -18,14 +18,10 @@ function Resolve-CommandPath([string]$Name) {
 
 function Get-PythonInvoker {
   $python = Resolve-CommandPath "python"
-  if ($python) {
-    return @{ Command = $python; PrefixArgs = @() }
-  }
+  if ($python) { return @{ Command = $python; PrefixArgs = @() } }
 
   $py = Resolve-CommandPath "py"
-  if ($py) {
-    return @{ Command = $py; PrefixArgs = @("-3") }
-  }
+  if ($py) { return @{ Command = $py; PrefixArgs = @("-3") } }
 
   throw @"
 Python not found in PATH.
@@ -65,12 +61,26 @@ If you already built frontend earlier, run with -SkipFrontendBuild.
 }
 
 function Ensure-VenvPython([string]$BackendDir, $PythonInvoker) {
-  & $PythonInvoker.Command @($PythonInvoker.PrefixArgs + @("-m", "venv", ".venv"))
-  $venvPython = Join-Path $BackendDir ".venv\Scripts\python.exe"
-  if (-not (Test-Path $venvPython)) {
-    throw "Virtual env python not found at $venvPython. Venv creation failed."
+  $venvDir = Join-Path $BackendDir ".venv"
+  if (Test-Path $venvDir) { Remove-Item $venvDir -Recurse -Force }
+
+  & $PythonInvoker.Command @($PythonInvoker.PrefixArgs + @("-m", "venv", $venvDir))
+  if ($LASTEXITCODE -ne 0) {
+    throw "Failed to create virtual environment. Python exited with code $LASTEXITCODE."
   }
-  return $venvPython
+
+  $candidates = @(
+    (Join-Path $venvDir "Scripts\python.exe"),
+    (Join-Path $venvDir "Scripts\python"),
+    (Join-Path $venvDir "bin\python"),
+    (Join-Path $venvDir "bin\python3")
+  )
+
+  foreach ($candidate in $candidates) {
+    if (Test-Path $candidate) { return $candidate }
+  }
+
+  throw "Virtual env python was not found. Checked: $($candidates -join ', ')"
 }
 
 if (Test-Path $payload) { Remove-Item $payload -Recurse -Force }
@@ -95,11 +105,9 @@ if (-not $SkipFrontendBuild) {
 Write-Host "[2/5] Prepare backend venv"
 $backendDir = Join-Path $root "backend"
 $pythonInvoker = Get-PythonInvoker
-Push-Location $backendDir
 $venvPython = Ensure-VenvPython -BackendDir $backendDir -PythonInvoker $pythonInvoker
 & $venvPython -m pip install --upgrade pip
-& $venvPython -m pip install -r requirements.txt
-Pop-Location
+& $venvPython -m pip install -r (Join-Path $backendDir "requirements.txt")
 
 Write-Host "[3/5] Build payload"
 Copy-Item (Join-Path $root "backend") (Join-Path $payload "backend") -Recurse
