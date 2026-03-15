@@ -1,5 +1,5 @@
 Param(
-  [string]$Version = "1.0.3",
+  [string]$Version = "1.0.4",
   [switch]$SkipFrontendBuild
 )
 
@@ -14,6 +14,26 @@ function Resolve-CommandPath([string]$Name) {
   $cmd = Get-Command $Name -ErrorAction SilentlyContinue
   if ($null -ne $cmd) { return $cmd.Source }
   return $null
+}
+
+function Get-PythonInvoker {
+  $python = Resolve-CommandPath "python"
+  if ($python) {
+    return @{ Command = $python; PrefixArgs = @() }
+  }
+
+  $py = Resolve-CommandPath "py"
+  if ($py) {
+    return @{ Command = $py; PrefixArgs = @("-3") }
+  }
+
+  throw @"
+Python not found in PATH.
+Install Python 3.10+ and reopen PowerShell.
+Quick install examples:
+  winget install Python.Python.3.12
+  choco install python
+"@
 }
 
 function Get-NpmCommand {
@@ -44,6 +64,15 @@ If you already built frontend earlier, run with -SkipFrontendBuild.
   return $npm
 }
 
+function Ensure-VenvPython([string]$BackendDir, $PythonInvoker) {
+  & $PythonInvoker.Command @($PythonInvoker.PrefixArgs + @("-m", "venv", ".venv"))
+  $venvPython = Join-Path $BackendDir ".venv\Scripts\python.exe"
+  if (-not (Test-Path $venvPython)) {
+    throw "Virtual env python not found at $venvPython. Venv creation failed."
+  }
+  return $venvPython
+}
+
 if (Test-Path $payload) { Remove-Item $payload -Recurse -Force }
 if (Test-Path $output) { Remove-Item $output -Recurse -Force }
 New-Item -Type Directory -Path $payload | Out-Null
@@ -64,10 +93,12 @@ if (-not $SkipFrontendBuild) {
 }
 
 Write-Host "[2/5] Prepare backend venv"
-Push-Location (Join-Path $root "backend")
-python -m venv .venv
-.\.venv\Scripts\python -m pip install --upgrade pip
-.\.venv\Scripts\pip install -r requirements.txt
+$backendDir = Join-Path $root "backend"
+$pythonInvoker = Get-PythonInvoker
+Push-Location $backendDir
+$venvPython = Ensure-VenvPython -BackendDir $backendDir -PythonInvoker $pythonInvoker
+& $venvPython -m pip install --upgrade pip
+& $venvPython -m pip install -r requirements.txt
 Pop-Location
 
 Write-Host "[3/5] Build payload"
@@ -76,7 +107,7 @@ Copy-Item $frontendDist (Join-Path $payload "frontend-dist") -Recurse
 Copy-Item (Join-Path $root "README.md") (Join-Path $payload "README.md")
 
 Write-Host "[4/5] Build installer program exe"
-python -m pip install pyinstaller
+& $pythonInvoker.Command @($pythonInvoker.PrefixArgs + @("-m", "pip", "install", "pyinstaller"))
 Push-Location $installerDir
 pyinstaller --noconfirm --onefile --windowed --name OneMusicInstaller --add-data "payload;payload" installer_app.py
 Pop-Location

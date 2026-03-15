@@ -1,5 +1,5 @@
 Param(
-  [string]$AppVersion = "1.0.2",
+  [string]$AppVersion = "1.0.3",
   [switch]$SkipFrontendBuild
 )
 
@@ -14,6 +14,26 @@ function Resolve-CommandPath([string]$Name) {
   $cmd = Get-Command $Name -ErrorAction SilentlyContinue
   if ($null -ne $cmd) { return $cmd.Source }
   return $null
+}
+
+function Get-PythonInvoker {
+  $python = Resolve-CommandPath "python"
+  if ($python) {
+    return @{ Command = $python; PrefixArgs = @() }
+  }
+
+  $py = Resolve-CommandPath "py"
+  if ($py) {
+    return @{ Command = $py; PrefixArgs = @("-3") }
+  }
+
+  throw @"
+Python not found in PATH.
+Install Python 3.10+ and reopen PowerShell.
+Quick install examples:
+  winget install Python.Python.3.12
+  choco install python
+"@
 }
 
 function Get-NpmCommand {
@@ -44,6 +64,15 @@ If frontend/dist already exists, run with -SkipFrontendBuild.
   return $npm
 }
 
+function Ensure-VenvPython([string]$BackendDir, $PythonInvoker) {
+  & $PythonInvoker.Command @($PythonInvoker.PrefixArgs + @("-m", "venv", ".venv"))
+  $venvPython = Join-Path $BackendDir ".venv\Scripts\python.exe"
+  if (-not (Test-Path $venvPython)) {
+    throw "Virtual env python not found at $venvPython. Venv creation failed."
+  }
+  return $venvPython
+}
+
 if (Test-Path $bundle) {
   Remove-Item $bundle -Recurse -Force
 }
@@ -64,10 +93,12 @@ if (-not $SkipFrontendBuild) {
 }
 
 Write-Host "[2/4] Preparing backend virtual env..."
-Push-Location (Join-Path $root "backend")
-python -m venv .venv
-.\.venv\Scripts\python -m pip install --upgrade pip
-.\.venv\Scripts\pip install -r requirements.txt
+$backendDir = Join-Path $root "backend"
+$pythonInvoker = Get-PythonInvoker
+Push-Location $backendDir
+$venvPython = Ensure-VenvPython -BackendDir $backendDir -PythonInvoker $pythonInvoker
+& $venvPython -m pip install --upgrade pip
+& $venvPython -m pip install -r requirements.txt
 Pop-Location
 
 Write-Host "[3/4] Assembling bundle..."

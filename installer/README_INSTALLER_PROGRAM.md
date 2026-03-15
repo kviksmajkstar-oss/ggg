@@ -12,12 +12,12 @@
 ## Сборка EXE (Windows)
 
 ```powershell
-powershell -ExecutionPolicy Bypass -File .\installer\build_installer_program.ps1 -Version 1.0.3
+powershell -ExecutionPolicy Bypass -File .\installer\build_installer_program.ps1 -Version 1.0.4
 ```
 
 Выходной файл:
 
-- `dist\installer-program\OneMusicInstaller-1.0.3.exe`
+- `dist\installer-program\OneMusicInstaller-1.0.4.exe`
 
 ## Важно
 
@@ -27,3 +27,6 @@ powershell -ExecutionPolicy Bypass -File .\installer\build_installer_program.ps1
 
 Если Node.js/npm не установлен, скрипт теперь завершится с понятной подсказкой (winget/choco).
 Если `frontend/dist` уже собран, можно использовать `-SkipFrontendBuild`.
+
+
+Если ошибка связана с `.venv\Scripts\python`, в новых скриптах добавлена проверка создания venv и fallback через `py -3`.
