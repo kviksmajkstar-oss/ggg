@@ -40,3 +40,6 @@ powershell -ExecutionPolicy Bypass -File .\installer\build_installer_program.ps1
 
 
 Скрипт запускает сборку через `python -m PyInstaller`, поэтому не требуется отдельная команда `pyinstaller` в PATH.
+
+
+Если PyInstaller завершился без файла на ожидаемом пути, скрипт теперь проверяет несколько путей (`installer/dist` и `dist`) и выводит список проверенных путей в ошибке.

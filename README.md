@@ -104,3 +104,6 @@ powershell -ExecutionPolicy Bypass -File .\installer\build_installer_program.ps1
 > (Windows Settings → Apps → App execution aliases), либо установите обычный Python из python.org/winget.
 
 > Если в PowerShell ошибка `pyinstaller is not recognized`, используйте актуальный скрипт: он вызывает `python -m PyInstaller` автоматически.
+
+> Если после сборки появляется ошибка `Installer binary not found after PyInstaller run`,
+> проверьте вывод шага PyInstaller выше: скрипт теперь явно покажет все проверенные пути к exe.

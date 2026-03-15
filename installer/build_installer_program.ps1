@@ -135,9 +135,33 @@ Write-Host "[4/5] Build installer program exe"
 & $venvPython -m pip install pyinstaller
 Push-Location $installerDir
 & $venvPython -m PyInstaller --noconfirm --onefile --windowed --name OneMusicInstaller --add-data "payload;payload" installer_app.py
+$pyiExit = $LASTEXITCODE
 Pop-Location
 
+if ($pyiExit -ne 0) {
+  throw "PyInstaller failed with exit code $pyiExit. Check build output above for details."
+}
+
 Write-Host "[5/5] Copy outputs"
-Copy-Item (Join-Path $installerDir "dist\OneMusicInstaller.exe") (Join-Path $output ("OneMusicInstaller-" + $Version + ".exe"))
+$exeCandidates = @(
+  (Join-Path $installerDir "dist\OneMusicInstaller.exe"),
+  (Join-Path $installerDir "dist\OneMusicInstaller"),
+  (Join-Path $root "dist\OneMusicInstaller.exe"),
+  (Join-Path $root "dist\OneMusicInstaller")
+)
+
+$builtExe = $null
+foreach ($candidate in $exeCandidates) {
+  if (Test-Path $candidate) {
+    $builtExe = $candidate
+    break
+  }
+}
+
+if (-not $builtExe) {
+  throw "Installer binary not found after PyInstaller run. Checked: $($exeCandidates -join ', ')"
+}
+
+Copy-Item $builtExe (Join-Path $output ("OneMusicInstaller-" + $Version + ".exe"))
 
 Write-Host "Done: dist\installer-program\OneMusicInstaller-$Version.exe"
