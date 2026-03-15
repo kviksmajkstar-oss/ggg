@@ -85,10 +85,10 @@ powershell -ExecutionPolicy Bypass -File .\scripts\build_windows_setup.ps1 -AppV
 Добавлен отдельный GUI-инсталлер как приложение (`OneMusicInstaller.exe`).
 
 ```powershell
-powershell -ExecutionPolicy Bypass -File .\installer\build_installer_program.ps1 -Version 1.0.6
+powershell -ExecutionPolicy Bypass -File .\installer\build_installer_program.ps1 -Version 1.0.7
 ```
 
-Результат: `dist\\installer-program\\OneMusicInstaller-1.0.6.exe`.
+Результат: `dist\\installer-program\\OneMusicInstaller-1.0.7.exe`.
 
 
 > Если в PowerShell ошибка `npm is not recognized`, установите Node.js LTS и перезапустите терминал,
@@ -107,3 +107,6 @@ powershell -ExecutionPolicy Bypass -File .\installer\build_installer_program.ps1
 
 > Если после сборки появляется ошибка `Installer binary not found after PyInstaller run`,
 > проверьте вывод шага PyInstaller выше: скрипт теперь явно покажет все проверенные пути к exe.
+
+> При ошибке `PyInstaller failed with exit code 1` скрипт автоматически пробует fallback сборку `--onedir`,
+> а затем ищет exe в обоих вариантах output (`dist/OneMusicInstaller.exe` и `dist/OneMusicInstaller/OneMusicInstaller.exe`).

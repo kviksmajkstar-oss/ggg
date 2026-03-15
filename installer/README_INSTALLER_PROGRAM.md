@@ -12,12 +12,12 @@
 ## Сборка EXE (Windows)
 
 ```powershell
-powershell -ExecutionPolicy Bypass -File .\installer\build_installer_program.ps1 -Version 1.0.6
+powershell -ExecutionPolicy Bypass -File .\installer\build_installer_program.ps1 -Version 1.0.7
 ```
 
 Выходной файл:
 
-- `dist\installer-program\OneMusicInstaller-1.0.6.exe`
+- `dist\installer-program\OneMusicInstaller-1.0.7.exe`
 
 ## Важно
 
@@ -43,3 +43,7 @@ powershell -ExecutionPolicy Bypass -File .\installer\build_installer_program.ps1
 
 
 Если PyInstaller завершился без файла на ожидаемом пути, скрипт теперь проверяет несколько путей (`installer/dist` и `dist`) и выводит список проверенных путей в ошибке.
+
+
+Если `--onefile` режим PyInstaller падает, скрипт автоматически делает retry с `--onedir` и забирает exe оттуда.
+Также payload очищается от тяжёлых директорий (`.venv`, `__pycache__`, `.pytest_cache`) перед упаковкой.

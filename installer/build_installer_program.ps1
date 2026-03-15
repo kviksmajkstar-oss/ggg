@@ -1,5 +1,5 @@
 Param(
-  [string]$Version = "1.0.6",
+  [string]$Version = "1.0.7",
   [switch]$SkipFrontendBuild
 )
 
@@ -100,6 +100,22 @@ function Ensure-VenvPython([string]$BackendDir, $PythonInvoker) {
   throw "Virtual env python was not found. Checked: $($candidates -join ', ')"
 }
 
+function Copy-BackendWithoutHeavyDirs([string]$SourceBackend, [string]$DestBackend) {
+  Copy-Item $SourceBackend $DestBackend -Recurse
+  $exclude = @(
+    (Join-Path $DestBackend ".venv"),
+    (Join-Path $DestBackend "__pycache__"),
+    (Join-Path $DestBackend ".pytest_cache")
+  )
+  foreach ($path in $exclude) {
+    if (Test-Path $path) { Remove-Item $path -Recurse -Force }
+  }
+
+  Get-ChildItem -Path $DestBackend -Directory -Recurse -Force |
+    Where-Object { $_.Name -in @("__pycache__", ".pytest_cache") } |
+    ForEach-Object { Remove-Item $_.FullName -Recurse -Force }
+}
+
 if (Test-Path $payload) { Remove-Item $payload -Recurse -Force }
 if (Test-Path $output) { Remove-Item $output -Recurse -Force }
 New-Item -Type Directory -Path $payload | Out-Null
@@ -127,15 +143,23 @@ $venvPython = Ensure-VenvPython -BackendDir $backendDir -PythonInvoker $pythonIn
 & $venvPython -m pip install -r (Join-Path $backendDir "requirements.txt")
 
 Write-Host "[3/5] Build payload"
-Copy-Item (Join-Path $root "backend") (Join-Path $payload "backend") -Recurse
+$payloadBackend = Join-Path $payload "backend"
+Copy-BackendWithoutHeavyDirs -SourceBackend $backendDir -DestBackend $payloadBackend
 Copy-Item $frontendDist (Join-Path $payload "frontend-dist") -Recurse
 Copy-Item (Join-Path $root "README.md") (Join-Path $payload "README.md")
 
 Write-Host "[4/5] Build installer program exe"
 & $venvPython -m pip install pyinstaller
 Push-Location $installerDir
+if (Test-Path (Join-Path $installerDir "dist")) { Remove-Item (Join-Path $installerDir "dist") -Recurse -Force }
+if (Test-Path (Join-Path $installerDir "build")) { Remove-Item (Join-Path $installerDir "build") -Recurse -Force }
 & $venvPython -m PyInstaller --noconfirm --onefile --windowed --name OneMusicInstaller --add-data "payload;payload" installer_app.py
 $pyiExit = $LASTEXITCODE
+if ($pyiExit -ne 0) {
+  Write-Host "PyInstaller onefile failed with exit code $pyiExit. Trying --onedir fallback..."
+  & $venvPython -m PyInstaller --noconfirm --onedir --windowed --name OneMusicInstaller --add-data "payload;payload" installer_app.py
+  $pyiExit = $LASTEXITCODE
+}
 Pop-Location
 
 if ($pyiExit -ne 0) {
@@ -145,9 +169,9 @@ if ($pyiExit -ne 0) {
 Write-Host "[5/5] Copy outputs"
 $exeCandidates = @(
   (Join-Path $installerDir "dist\OneMusicInstaller.exe"),
-  (Join-Path $installerDir "dist\OneMusicInstaller"),
+  (Join-Path $installerDir "dist\OneMusicInstaller\OneMusicInstaller.exe"),
   (Join-Path $root "dist\OneMusicInstaller.exe"),
-  (Join-Path $root "dist\OneMusicInstaller")
+  (Join-Path $root "dist\OneMusicInstaller\OneMusicInstaller.exe")
 )
 
 $builtExe = $null
