@@ -1,0 +1,63 @@
+:root {
+  color-scheme: dark;
+  font-family: Inter, system-ui, sans-serif;
+  --bg: #0c0f1e;
+  --card: #1a1f36;
+  --accent: #4dd7ff;
+}
+
+body {
+  margin: 0;
+  background: radial-gradient(circle at top, #16213e 0%, var(--bg) 45%);
+}
+
+.layout {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 20px;
+  color: #f6f8ff;
+}
+
+.card {
+  background: var(--card);
+  border-radius: 16px;
+  padding: 16px;
+  margin-bottom: 16px;
+}
+
+.controls {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+input, button {
+  border: none;
+  border-radius: 10px;
+  padding: 10px 12px;
+}
+
+button {
+  background: var(--accent);
+  color: #00111a;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 12px;
+}
+
+article {
+  border: 1px solid #2d3559;
+  border-radius: 12px;
+  padding: 10px;
+  margin-bottom: 8px;
+}
+
+.row {
+  display: flex;
+  gap: 6px;
+}
