@@ -12,14 +12,18 @@
 ## Сборка EXE (Windows)
 
 ```powershell
-powershell -ExecutionPolicy Bypass -File .\installer\build_installer_program.ps1 -Version 1.0.2
+powershell -ExecutionPolicy Bypass -File .\installer\build_installer_program.ps1 -Version 1.0.3
 ```
 
 Выходной файл:
 
-- `dist\installer-program\OneMusicInstaller-1.0.2.exe`
+- `dist\installer-program\OneMusicInstaller-1.0.3.exe`
 
 ## Важно
 
 В Linux-контейнере нельзя собрать нативный Windows `.exe` без Windows runtime/tooling,
 поэтому репозиторий содержит готовый сборочный pipeline для Windows.
+
+
+Если Node.js/npm не установлен, скрипт теперь завершится с понятной подсказкой (winget/choco).
+Если `frontend/dist` уже собран, можно использовать `-SkipFrontendBuild`.
