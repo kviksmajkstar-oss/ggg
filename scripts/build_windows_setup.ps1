@@ -1,5 +1,5 @@
 Param(
-  [string]$AppVersion = "1.0.4",
+  [string]$AppVersion = "1.0.5",
   [switch]$SkipFrontendBuild
 )
 
@@ -16,16 +16,33 @@ function Resolve-CommandPath([string]$Name) {
   return $null
 }
 
+function Test-PythonInvoker($Invoker) {
+  & $Invoker.Command @($Invoker.PrefixArgs + @("-c", "import sys; print(sys.executable)")) | Out-Null
+  return $LASTEXITCODE -eq 0
+}
+
 function Get-PythonInvoker {
+  $candidates = @()
+
   $python = Resolve-CommandPath "python"
-  if ($python) { return @{ Command = $python; PrefixArgs = @() } }
+  if ($python) { $candidates += @{ Command = $python; PrefixArgs = @(); Label = "python" } }
 
   $py = Resolve-CommandPath "py"
-  if ($py) { return @{ Command = $py; PrefixArgs = @("-3") } }
+  if ($py) {
+    $candidates += @{ Command = $py; PrefixArgs = @("-3"); Label = "py -3" }
+    $candidates += @{ Command = $py; PrefixArgs = @(); Label = "py" }
+  }
 
+  foreach ($candidate in $candidates) {
+    if (Test-PythonInvoker $candidate) { return $candidate }
+  }
+
+  $tried = if ($candidates.Count -gt 0) { ($candidates | ForEach-Object { $_.Label }) -join ", " } else { "none" }
   throw @"
-Python not found in PATH.
+No working Python launcher found.
+Tried: $tried
 Install Python 3.10+ and reopen PowerShell.
+If python from Microsoft Store alias is selected, disable App Execution Alias for python.exe and python3.exe in Windows Settings.
 Quick install examples:
   winget install Python.Python.3.12
   choco install python

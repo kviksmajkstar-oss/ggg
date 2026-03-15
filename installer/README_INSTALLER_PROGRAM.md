@@ -12,12 +12,12 @@
 ## Сборка EXE (Windows)
 
 ```powershell
-powershell -ExecutionPolicy Bypass -File .\installer\build_installer_program.ps1 -Version 1.0.5
+powershell -ExecutionPolicy Bypass -File .\installer\build_installer_program.ps1 -Version 1.0.6
 ```
 
 Выходной файл:
 
-- `dist\installer-program\OneMusicInstaller-1.0.5.exe`
+- `dist\installer-program\OneMusicInstaller-1.0.6.exe`
 
 ## Важно
 
@@ -33,3 +33,7 @@ powershell -ExecutionPolicy Bypass -File .\installer\build_installer_program.ps1
 
 
 Если создание venv прошло нестандартно, скрипт проверяет пути: `Scripts/python.exe`, `Scripts/python`, `bin/python`, `bin/python3`.
+
+
+Если видите `Python exited with code 9009`, это обычно сломанный python launcher/alias.
+Отключите App Execution Alias для `python.exe`/`python3.exe` или установите Python 3.10+ из официального дистрибутива.
