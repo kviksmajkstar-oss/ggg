@@ -69,3 +69,13 @@ pytest
 - CDN и encrypted offline storage.
 - Полноценные права на офлайн прослушивание у правообладателей.
 - Модерация контента и юридический compliance.
+
+## Сборка setup.exe (Windows)
+
+Добавлен инсталляторный пайплайн через Inno Setup.
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\scripts\build_windows_setup.ps1 -AppVersion 1.0.1
+```
+
+Результат: `dist\\installer\\OneMusicAI-Setup-1.0.1.exe`.
