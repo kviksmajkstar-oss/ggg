@@ -132,9 +132,9 @@ Copy-Item $frontendDist (Join-Path $payload "frontend-dist") -Recurse
 Copy-Item (Join-Path $root "README.md") (Join-Path $payload "README.md")
 
 Write-Host "[4/5] Build installer program exe"
-& $pythonInvoker.Command @($pythonInvoker.PrefixArgs + @("-m", "pip", "install", "pyinstaller"))
+& $venvPython -m pip install pyinstaller
 Push-Location $installerDir
-pyinstaller --noconfirm --onefile --windowed --name OneMusicInstaller --add-data "payload;payload" installer_app.py
+& $venvPython -m PyInstaller --noconfirm --onefile --windowed --name OneMusicInstaller --add-data "payload;payload" installer_app.py
 Pop-Location
 
 Write-Host "[5/5] Copy outputs"

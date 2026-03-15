@@ -37,3 +37,6 @@ powershell -ExecutionPolicy Bypass -File .\installer\build_installer_program.ps1
 
 Если видите `Python exited with code 9009`, это обычно сломанный python launcher/alias.
 Отключите App Execution Alias для `python.exe`/`python3.exe` или установите Python 3.10+ из официального дистрибутива.
+
+
+Скрипт запускает сборку через `python -m PyInstaller`, поэтому не требуется отдельная команда `pyinstaller` в PATH.

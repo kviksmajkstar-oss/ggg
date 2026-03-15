@@ -102,3 +102,5 @@ powershell -ExecutionPolicy Bypass -File .\installer\build_installer_program.ps1
 
 > Для ошибки `Python exited with code 9009` отключите App Execution Alias для `python.exe/python3.exe`
 > (Windows Settings → Apps → App execution aliases), либо установите обычный Python из python.org/winget.
+
+> Если в PowerShell ошибка `pyinstaller is not recognized`, используйте актуальный скрипт: он вызывает `python -m PyInstaller` автоматически.
