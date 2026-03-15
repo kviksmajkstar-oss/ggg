@@ -79,3 +79,13 @@ powershell -ExecutionPolicy Bypass -File .\scripts\build_windows_setup.ps1 -AppV
 ```
 
 Результат: `dist\\installer\\OneMusicAI-Setup-1.0.1.exe`.
+
+## Инсталлер как программа (OneMusicInstaller.exe)
+
+Добавлен отдельный GUI-инсталлер как приложение (`OneMusicInstaller.exe`).
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\installer\build_installer_program.ps1 -Version 1.0.2
+```
+
+Результат: `dist\\installer-program\\OneMusicInstaller-1.0.2.exe`.
