@@ -1,0 +1,191 @@
+Param(
+  [string]$Version = "1.0.7",
+  [switch]$SkipFrontendBuild
+)
+
+$ErrorActionPreference = "Stop"
+$root = Split-Path -Parent $PSScriptRoot
+$installerDir = Join-Path $root "installer"
+$payload = Join-Path $installerDir "payload"
+$output = Join-Path $root "dist\installer-program"
+$frontendDist = Join-Path $root "frontend\dist"
+
+function Resolve-CommandPath([string]$Name) {
+  $cmd = Get-Command $Name -ErrorAction SilentlyContinue
+  if ($null -ne $cmd) { return $cmd.Source }
+  return $null
+}
+
+function Test-PythonInvoker($Invoker) {
+  & $Invoker.Command @($Invoker.PrefixArgs + @("-c", "import sys; print(sys.executable)")) | Out-Null
+  return $LASTEXITCODE -eq 0
+}
+
+function Get-PythonInvoker {
+  $candidates = @()
+
+  $python = Resolve-CommandPath "python"
+  if ($python) { $candidates += @{ Command = $python; PrefixArgs = @(); Label = "python" } }
+
+  $py = Resolve-CommandPath "py"
+  if ($py) {
+    $candidates += @{ Command = $py; PrefixArgs = @("-3"); Label = "py -3" }
+    $candidates += @{ Command = $py; PrefixArgs = @(); Label = "py" }
+  }
+
+  foreach ($candidate in $candidates) {
+    if (Test-PythonInvoker $candidate) { return $candidate }
+  }
+
+  $tried = if ($candidates.Count -gt 0) { ($candidates | ForEach-Object { $_.Label }) -join ", " } else { "none" }
+  throw @"
+No working Python launcher found.
+Tried: $tried
+Install Python 3.10+ and reopen PowerShell.
+If python from Microsoft Store alias is selected, disable App Execution Alias for python.exe and python3.exe in Windows Settings.
+Quick install examples:
+  winget install Python.Python.3.12
+  choco install python
+"@
+}
+
+function Get-NpmCommand {
+  $npmCmd = Resolve-CommandPath "npm.cmd"
+  if ($npmCmd) { return $npmCmd }
+
+  $npm = Resolve-CommandPath "npm"
+  if ($npm) { return $npm }
+
+  return $null
+}
+
+function Ensure-NodeTooling {
+  $node = Resolve-CommandPath "node"
+  $npm = Get-NpmCommand
+
+  if (-not $node -or -not $npm) {
+    throw @"
+Node.js/npm not found in PATH.
+Install Node.js LTS and reopen PowerShell, then retry.
+Quick install examples:
+  winget install OpenJS.NodeJS.LTS
+  choco install nodejs-lts
+If you already built frontend earlier, run with -SkipFrontendBuild.
+"@
+  }
+
+  return $npm
+}
+
+function Ensure-VenvPython([string]$BackendDir, $PythonInvoker) {
+  $venvDir = Join-Path $BackendDir ".venv"
+  if (Test-Path $venvDir) { Remove-Item $venvDir -Recurse -Force }
+
+  & $PythonInvoker.Command @($PythonInvoker.PrefixArgs + @("-m", "venv", $venvDir))
+  if ($LASTEXITCODE -ne 0) {
+    throw "Failed to create virtual environment. Python exited with code $LASTEXITCODE."
+  }
+
+  $candidates = @(
+    (Join-Path $venvDir "Scripts\python.exe"),
+    (Join-Path $venvDir "Scripts\python"),
+    (Join-Path $venvDir "bin\python"),
+    (Join-Path $venvDir "bin\python3")
+  )
+
+  foreach ($candidate in $candidates) {
+    if (Test-Path $candidate) { return $candidate }
+  }
+
+  throw "Virtual env python was not found. Checked: $($candidates -join ', ')"
+}
+
+function Copy-BackendWithoutHeavyDirs([string]$SourceBackend, [string]$DestBackend) {
+  Copy-Item $SourceBackend $DestBackend -Recurse
+  $exclude = @(
+    (Join-Path $DestBackend ".venv"),
+    (Join-Path $DestBackend "__pycache__"),
+    (Join-Path $DestBackend ".pytest_cache")
+  )
+  foreach ($path in $exclude) {
+    if (Test-Path $path) { Remove-Item $path -Recurse -Force }
+  }
+
+  Get-ChildItem -Path $DestBackend -Directory -Recurse -Force |
+    Where-Object { $_.Name -in @("__pycache__", ".pytest_cache") } |
+    ForEach-Object { Remove-Item $_.FullName -Recurse -Force }
+}
+
+if (Test-Path $payload) { Remove-Item $payload -Recurse -Force }
+if (Test-Path $output) { Remove-Item $output -Recurse -Force }
+New-Item -Type Directory -Path $payload | Out-Null
+New-Item -Type Directory -Path $output | Out-Null
+
+if (-not $SkipFrontendBuild) {
+  Write-Host "[1/5] Build frontend"
+  $npmCmd = Ensure-NodeTooling
+  Push-Location (Join-Path $root "frontend")
+  & $npmCmd install
+  & $npmCmd run build
+  Pop-Location
+} else {
+  Write-Host "[1/5] Skip frontend build (requested)"
+  if (-not (Test-Path $frontendDist)) {
+    throw "frontend/dist not found. Remove -SkipFrontendBuild or build frontend first."
+  }
+}
+
+Write-Host "[2/5] Prepare backend venv"
+$backendDir = Join-Path $root "backend"
+$pythonInvoker = Get-PythonInvoker
+$venvPython = Ensure-VenvPython -BackendDir $backendDir -PythonInvoker $pythonInvoker
+& $venvPython -m pip install --upgrade pip
+& $venvPython -m pip install -r (Join-Path $backendDir "requirements.txt")
+
+Write-Host "[3/5] Build payload"
+$payloadBackend = Join-Path $payload "backend"
+Copy-BackendWithoutHeavyDirs -SourceBackend $backendDir -DestBackend $payloadBackend
+Copy-Item $frontendDist (Join-Path $payload "frontend-dist") -Recurse
+Copy-Item (Join-Path $root "README.md") (Join-Path $payload "README.md")
+
+Write-Host "[4/5] Build installer program exe"
+& $venvPython -m pip install pyinstaller
+Push-Location $installerDir
+if (Test-Path (Join-Path $installerDir "dist")) { Remove-Item (Join-Path $installerDir "dist") -Recurse -Force }
+if (Test-Path (Join-Path $installerDir "build")) { Remove-Item (Join-Path $installerDir "build") -Recurse -Force }
+& $venvPython -m PyInstaller --noconfirm --onefile --windowed --name OneMusicInstaller --add-data "payload;payload" installer_app.py
+$pyiExit = $LASTEXITCODE
+if ($pyiExit -ne 0) {
+  Write-Host "PyInstaller onefile failed with exit code $pyiExit. Trying --onedir fallback..."
+  & $venvPython -m PyInstaller --noconfirm --onedir --windowed --name OneMusicInstaller --add-data "payload;payload" installer_app.py
+  $pyiExit = $LASTEXITCODE
+}
+Pop-Location
+
+if ($pyiExit -ne 0) {
+  throw "PyInstaller failed with exit code $pyiExit. Check build output above for details."
+}
+
+Write-Host "[5/5] Copy outputs"
+$exeCandidates = @(
+  (Join-Path $installerDir "dist\OneMusicInstaller.exe"),
+  (Join-Path $installerDir "dist\OneMusicInstaller\OneMusicInstaller.exe"),
+  (Join-Path $root "dist\OneMusicInstaller.exe"),
+  (Join-Path $root "dist\OneMusicInstaller\OneMusicInstaller.exe")
+)
+
+$builtExe = $null
+foreach ($candidate in $exeCandidates) {
+  if (Test-Path $candidate) {
+    $builtExe = $candidate
+    break
+  }
+}
+
+if (-not $builtExe) {
+  throw "Installer binary not found after PyInstaller run. Checked: $($exeCandidates -join ', ')"
+}
+
+Copy-Item $builtExe (Join-Path $output ("OneMusicInstaller-" + $Version + ".exe"))
+
+Write-Host "Done: dist\installer-program\OneMusicInstaller-$Version.exe"
