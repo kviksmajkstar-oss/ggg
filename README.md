@@ -116,3 +116,8 @@ powershell -ExecutionPolicy Bypass -File .\installer\build_installer_program.ps1
 
 
 Быстрый запуск на Windows: `installer\build_installer_program.cmd --version 1.0.9`
+
+
+Сборка только exe-инсталлера через PyInstaller: `python installer/pyinstaller_builder.py --version 1.1.0 --mode auto`
+
+Быстрый запуск (Windows): `installer\build_pyinstaller_installer.cmd --version 1.1.0`

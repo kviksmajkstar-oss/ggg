@@ -66,3 +66,18 @@ python installer/build_installer_program.py --version 1.0.9 --skip-frontend-buil
 
 Сборка идет через spec-файл `installer/OneMusicInstaller.spec` (стабильнее для PyInstaller).
 Для удобства на Windows есть ярлык-команда: `installer\build_installer_program.cmd`.
+
+
+## Чистая сборка инсталлера только через PyInstaller
+
+Если payload уже подготовлен, можно собрать только сам exe-инсталлер:
+
+```bash
+python installer/pyinstaller_builder.py --version 1.1.0 --mode auto
+```
+
+Windows shortcut:
+
+```bat
+installer\build_pyinstaller_installer.cmd --version 1.1.0
+```
