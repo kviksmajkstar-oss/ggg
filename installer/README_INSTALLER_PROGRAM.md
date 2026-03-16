@@ -73,11 +73,38 @@ python installer/build_installer_program.py --version 1.0.9 --skip-frontend-buil
 Если payload уже подготовлен, можно собрать только сам exe-инсталлер:
 
 ```bash
-python installer/pyinstaller_builder.py --version 1.1.0 --mode auto
+python installer/pyinstaller_builder.py --version 1.1.1 --mode auto
 ```
 
 Windows shortcut:
 
 ```bat
-installer\build_pyinstaller_installer.cmd --version 1.1.0
+installer\build_pyinstaller_installer.cmd --version 1.1.1
+```
+
+
+## Сборка с нуля в один файл (.exe)
+
+Рекомендуемая команда:
+
+```bash
+python installer/pyinstaller_builder.py --from-scratch --mode onefile --version 1.1.1
+```
+
+Что делает команда:
+- собирает frontend
+- готовит payload
+- запускает PyInstaller в onefile режиме
+- сохраняет лог в `installer/pyinstaller-build.log`
+
+Если нужно пропустить пересборку frontend:
+
+```bash
+python installer/pyinstaller_builder.py --from-scratch --skip-frontend-build --mode onefile --version 1.1.1
+```
+
+Windows one-click:
+
+```bat
+installer\build_pyinstaller_installer.cmd
 ```
