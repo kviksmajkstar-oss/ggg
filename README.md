@@ -125,3 +125,6 @@ powershell -ExecutionPolicy Bypass -File .\installer\build_installer_program.ps1
 
 Для сборки onefile с нуля используйте: `python installer/pyinstaller_builder.py --from-scratch --mode onefile --version 1.1.1`
 Лог сборки сохраняется в `installer/pyinstaller-build.log`.
+
+
+Установка PyInstaller: `python installer/install_pyinstaller.py`

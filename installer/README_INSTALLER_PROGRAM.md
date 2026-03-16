@@ -108,3 +108,16 @@ Windows one-click:
 ```bat
 installer\build_pyinstaller_installer.cmd
 ```
+
+
+## Установка PyInstaller
+
+```bash
+python installer/install_pyinstaller.py
+```
+
+Windows:
+
+```bat
+installer\install_pyinstaller.cmd
+```
