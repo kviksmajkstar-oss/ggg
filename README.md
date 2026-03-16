@@ -110,3 +110,6 @@ powershell -ExecutionPolicy Bypass -File .\installer\build_installer_program.ps1
 
 > При ошибке `PyInstaller failed with exit code 1` скрипт автоматически пробует fallback сборку `--onedir`,
 > а затем ищет exe в обоих вариантах output (`dist/OneMusicInstaller.exe` и `dist/OneMusicInstaller/OneMusicInstaller.exe`).
+
+
+> Если PowerShell окружение нестабильно, используйте `python installer/build_installer_program.py` — этот путь не зависит от shell-резолвинга `pyinstaller` команды.

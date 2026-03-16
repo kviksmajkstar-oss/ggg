@@ -47,3 +47,18 @@ powershell -ExecutionPolicy Bypass -File .\installer\build_installer_program.ps1
 
 Если `--onefile` режим PyInstaller падает, скрипт автоматически делает retry с `--onedir` и забирает exe оттуда.
 Также payload очищается от тяжёлых директорий (`.venv`, `__pycache__`, `.pytest_cache`) перед упаковкой.
+
+
+## Python-скрипт сборки (рекомендуется)
+
+Вместо PowerShell можно использовать прямой билд на Python + PyInstaller:
+
+```bash
+python installer/build_installer_program.py --version 1.0.8
+```
+
+Если frontend уже собран:
+
+```bash
+python installer/build_installer_program.py --version 1.0.8 --skip-frontend-build
+```
