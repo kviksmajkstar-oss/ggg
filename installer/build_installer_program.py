@@ -61,18 +61,7 @@ def ensure_pyinstaller() -> None:
 
 
 def build_installer_exe() -> None:
-    base_cmd = [
-        sys.executable,
-        "-m",
-        "PyInstaller",
-        "--noconfirm",
-        "--windowed",
-        "--name",
-        "OneMusicInstaller",
-        "--add-data",
-        "payload;payload",
-        "installer_app.py",
-    ]
+    spec_file = INSTALLER_DIR / "OneMusicInstaller.spec"
 
     # Clean previous artifacts to avoid stale lookup.
     for p in (INSTALLER_DIR / "build", INSTALLER_DIR / "dist"):
@@ -80,15 +69,15 @@ def build_installer_exe() -> None:
             shutil.rmtree(p, ignore_errors=True)
 
     try:
-        run(base_cmd[:3] + ["--onefile"] + base_cmd[3:], cwd=INSTALLER_DIR)
+        run([sys.executable, "-m", "PyInstaller", "--noconfirm", "--onefile", str(spec_file)], cwd=INSTALLER_DIR)
     except subprocess.CalledProcessError:
         print("onefile build failed, retrying with --onedir...")
-        run(base_cmd[:3] + ["--onedir"] + base_cmd[3:], cwd=INSTALLER_DIR)
+        run([sys.executable, "-m", "PyInstaller", "--noconfirm", "--onedir", str(spec_file)], cwd=INSTALLER_DIR)
 
 
 def main() -> int:
     parser = argparse.ArgumentParser()
-    parser.add_argument("--version", default="1.0.8")
+    parser.add_argument("--version", default="1.0.9")
     parser.add_argument("--skip-frontend-build", action="store_true")
     args = parser.parse_args()
 

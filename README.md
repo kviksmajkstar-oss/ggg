@@ -113,3 +113,6 @@ powershell -ExecutionPolicy Bypass -File .\installer\build_installer_program.ps1
 
 
 > Если PowerShell окружение нестабильно, используйте `python installer/build_installer_program.py` — этот путь не зависит от shell-резолвинга `pyinstaller` команды.
+
+
+Быстрый запуск на Windows: `installer\build_installer_program.cmd --version 1.0.9`

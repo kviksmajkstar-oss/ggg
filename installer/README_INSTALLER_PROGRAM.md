@@ -54,11 +54,15 @@ powershell -ExecutionPolicy Bypass -File .\installer\build_installer_program.ps1
 Вместо PowerShell можно использовать прямой билд на Python + PyInstaller:
 
 ```bash
-python installer/build_installer_program.py --version 1.0.8
+python installer/build_installer_program.py --version 1.0.9
 ```
 
 Если frontend уже собран:
 
 ```bash
-python installer/build_installer_program.py --version 1.0.8 --skip-frontend-build
+python installer/build_installer_program.py --version 1.0.9 --skip-frontend-build
 ```
+
+
+Сборка идет через spec-файл `installer/OneMusicInstaller.spec` (стабильнее для PyInstaller).
+Для удобства на Windows есть ярлык-команда: `installer\build_installer_program.cmd`.
