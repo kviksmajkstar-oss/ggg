@@ -31,6 +31,8 @@ if not exist "server.js" (
   exit /b 1
 )
 
+call :ensure_firewall_rule
+
 echo Starting server from:
 echo %cd%
 echo.
@@ -65,3 +67,33 @@ if not "%EXIT_CODE%"=="0" (
 )
 echo.
 pause
+exit /b
+
+:ensure_firewall_rule
+set "NOMERCY_FIREWALL_RULE=NOMERCY %PORT%"
+
+net session >nul 2>nul
+if errorlevel 1 (
+  echo [WARNING] This window is not running as Administrator.
+  echo If the site opens on this PC but not on your phone, rerun start-nomercy.bat as Administrator once
+  echo so Windows Firewall can allow incoming TCP connections on port %PORT%.
+  echo.
+  goto :eof
+)
+
+netsh advfirewall firewall show rule name="%NOMERCY_FIREWALL_RULE%" >nul 2>nul
+if errorlevel 1 (
+  echo Adding Windows Firewall rule for TCP port %PORT%...
+  netsh advfirewall firewall add rule name="%NOMERCY_FIREWALL_RULE%" dir=in action=allow protocol=TCP localport=%PORT% >nul
+  if errorlevel 1 (
+    echo [WARNING] Failed to add the firewall rule automatically.
+  ) else (
+    echo [OK] Windows Firewall now allows TCP port %PORT%.
+  )
+  echo.
+  goto :eof
+)
+
+echo [OK] Windows Firewall already allows TCP port %PORT%.
+echo.
+goto :eof
