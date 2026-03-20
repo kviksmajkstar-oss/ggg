@@ -1,5 +1,6 @@
 const http = require('http');
 const fs = require('fs');
+const os = require('os');
 const path = require('path');
 const crypto = require('crypto');
 const { URL } = require('url');
@@ -74,6 +75,31 @@ function parseCookies(cookieHeader = '') {
       acc[key] = rest.join('=');
       return acc;
     }, {});
+}
+
+function getLanUrls() {
+  const interfaces = os.networkInterfaces();
+  const urls = new Set([`http://127.0.0.1:${PORT}`]);
+
+  Object.values(interfaces)
+    .flat()
+    .filter(Boolean)
+    .forEach((address) => {
+      if (address.internal || address.family !== 'IPv4') {
+        return;
+      }
+      urls.add(`http://${address.address}:${PORT}`);
+    });
+
+  return [...urls];
+}
+
+function getServerInfo() {
+  return {
+    host: HOST,
+    port: PORT,
+    lan_urls: getLanUrls(),
+  };
 }
 
 function serializeUser(user) {
@@ -206,7 +232,7 @@ const server = http.createServer(async (req, res) => {
     }
 
     if (req.method === 'GET' && pathname === '/health') {
-      return sendJson(res, 200, { ok: true, host: HOST, port: PORT });
+      return sendJson(res, 200, { ok: true, server_info: getServerInfo() });
     }
 
     const data = readData();
@@ -218,6 +244,7 @@ const server = http.createServer(async (req, res) => {
         users: data.users.map(serializeUser),
         feed: buildFeed(data, currentUser?.id),
         chats: currentUser ? buildChats(data, currentUser.id) : [],
+        server_info: getServerInfo(),
       });
     }
 
@@ -375,5 +402,6 @@ server.on('clientError', (error, socket) => {
 });
 
 server.listen(PORT, HOST, () => {
-  console.log(`NOMERCY running on http://${HOST}:${PORT}`);
+  console.log('NOMERCY running. Open one of these URLs:');
+  getLanUrls().forEach((url) => console.log(`- ${url}`));
 });

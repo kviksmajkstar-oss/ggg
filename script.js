@@ -15,6 +15,7 @@ const appView = document.getElementById('appView');
 const authTabs = document.querySelectorAll('.auth-tab');
 const authForms = document.querySelectorAll('.auth-form');
 const authMessage = document.getElementById('authMessage');
+const networkInfo = document.getElementById('networkInfo');
 const loginForm = document.getElementById('loginForm');
 const registerForm = document.getElementById('registerForm');
 const logoutButton = document.getElementById('logoutButton');
@@ -86,6 +87,15 @@ function setAuthTab(tab) {
   authTabs.forEach((button) => button.classList.toggle('active', button.dataset.authTab === tab));
   authForms.forEach((form) => form.classList.toggle('active', form.id === `${tab}Form`));
   authMessage.textContent = '';
+}
+
+function renderNetworkInfo(serverInfo) {
+  if (!networkInfo || !serverInfo?.lan_urls?.length) {
+    return;
+  }
+  networkInfo.innerHTML = `Адреса для открытия NOMERCY: ${serverInfo.lan_urls
+    .map((url) => `<code>${url}</code>`)
+    .join(', ')}. Если другое устройство не открывает сайт, проверь, что оно находится в той же сети и что порт ${serverInfo.port} разрешён в firewall.`;
 }
 
 function renderUser() {
@@ -195,6 +205,7 @@ function setAuthenticatedUI(isAuthenticated) {
 async function bootstrap() {
   applyTheme(state.theme);
   const data = await api('/api/bootstrap');
+  renderNetworkInfo(data.server_info);
   state.currentUser = data.current_user;
   state.users = data.users;
   state.feed = data.feed;
