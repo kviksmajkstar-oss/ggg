@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>NOMERCY — next social network</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="page-glow"></div>
+    <div class="app-shell">
+      <header class="topbar card">
+        <div class="topbar__left">
+          <a class="brand" href="#" aria-label="NOMERCY home">
+            <span class="brand__logo">N</span>
+            <span>
+              <strong>NOMERCY</strong>
+              <small>social + live + games</small>
+            </span>
+          </a>
+
+          <label class="search-box" aria-label="Поиск">
+            <span>⌕</span>
+            <input type="text" placeholder="Поиск людей, румов, игр и идей" />
+          </label>
+        </div>
+
+        <nav class="topbar__nav" aria-label="Главная навигация">
+          <a class="nav-link active" href="#feed">Лента</a>
+          <a class="nav-link" href="#live">Live</a>
+          <a class="nav-link" href="#games">Games</a>
+          <a class="nav-link" href="#profile-lab">Profile Lab</a>
+        </nav>
+
+        <div class="topbar__right">
+          <button class="icon-btn" aria-label="Меню">☰</button>
+          <button class="icon-btn" aria-label="Чаты">💬</button>
+          <button class="icon-btn" aria-label="Уведомления">🔔</button>
+          <button class="profile-pill">
+            <span id="topbarAvatar" class="avatar avatar--gradient">AK</span>
+            <span>
+              <strong id="topbarName">Alex King</strong>
+              <small>Live creator mode</small>
+            </span>
+          </button>
+        </div>
+      </header>
+
+      <main class="layout">
+        <aside class="left-rail">
+          <section class="card profile-card">
+            <div class="profile-card__cover"></div>
+            <div class="profile-card__body">
+              <span id="profileAvatar" class="avatar avatar--xl avatar--gradient">AK</span>
+              <h1 id="profileName">Alex King</h1>
+              <p id="profileBio">
+                Делаю digital-продукты, веду creator-комьюнити и собираю вокруг себя людей,
+                которые любят сильный дизайн, tech и новые онлайн-форматы общения.
+              </p>
+              <div class="profile-stats">
+                <div><strong id="followersCount">12.4K</strong><span>followers</span></div>
+                <div><strong>94%</strong><span>engagement</span></div>
+                <div><strong>28</strong><span>rooms</span></div>
+              </div>
+            </div>
+          </section>
+
+          <section id="profile-lab" class="card profile-lab">
+            <div class="section-heading">
+              <div>
+                <p class="eyebrow">Кастомизация</p>
+                <h2>Profile Lab</h2>
+              </div>
+            </div>
+            <div class="lab-form">
+              <label>
+                <span>Имя профиля</span>
+                <input id="nameInput" type="text" value="Alex King" maxlength="24" />
+              </label>
+              <label>
+                <span>Краткое описание</span>
+                <textarea id="bioInput" rows="3">Делаю digital-продукты, веду creator-комьюнити и собираю вокруг себя людей, которые любят сильный дизайн, tech и новые онлайн-форматы общения.</textarea>
+              </label>
+              <div class="lab-grid">
+                <label>
+                  <span>Тема профиля</span>
+                  <select id="themeSelect">
+                    <option value="gradient">Blue Flame</option>
+                    <option value="sunset">Sunset Pulse</option>
+                    <option value="neo">Neo Mint</option>
+                    <option value="night">Night Violet</option>
+                  </select>
+                </label>
+                <label>
+                  <span>Статус</span>
+                  <select id="statusSelect">
+                    <option value="В онлайне">В онлайне</option>
+                    <option value="В эфире">В эфире</option>
+                    <option value="На связи">На связи</option>
+                    <option value="Играю">Играю</option>
+                  </select>
+                </label>
+              </div>
+              <button id="applyProfile" class="primary-btn">Применить стиль</button>
+            </div>
+          </section>
+
+          <section class="card shortcuts-card">
+            <div class="section-heading">
+              <h2>Быстрый доступ</h2>
+            </div>
+            <nav class="shortcut-list">
+              <a href="#feed">📰 Моя лента</a>
+              <a href="#live">📡 Live rooms</a>
+              <a href="#games">🕹 Игры</a>
+              <a href="#">👥 Друзья</a>
+              <a href="#">🛍 Marketplace</a>
+              <a href="#">🎬 Reels</a>
+            </nav>
+          </section>
+        </aside>
+
+        <section class="feed-column">
+          <section class="hero card">
+            <div>
+              <p class="eyebrow">NOMERCY 2.0</p>
+              <h1>Современная соцсеть, где профиль, live и игры живут в одном пространстве.</h1>
+              <p>
+                Структурно знакомо как Facebook, визуально свежее, а по возможностям — глубже:
+                настрой профиль, следи за онлайн-активностью, запускай свои игры и публикуй контент.
+              </p>
+            </div>
+            <div class="hero-badge">
+              <span id="heroStatusDot" class="status-dot"></span>
+              <strong id="heroStatus">В онлайне</strong>
+              <small>персональный режим профиля</small>
+            </div>
+          </section>
+
+          <section class="stories card">
+            <div class="section-heading">
+              <h2>Stories</h2>
+              <button class="ghost-btn">Все истории</button>
+            </div>
+            <div class="story-list">
+              <article class="story story--create">
+                <div class="story__cover story-bg-1"></div>
+                <div class="story__meta">
+                  <span class="story__plus">+</span>
+                  <strong>Создать историю</strong>
+                </div>
+              </article>
+              <article class="story">
+                <div class="story__cover story-bg-2"></div>
+                <div class="story__meta"><span class="avatar avatar--sm avatar--pink">LS</span><strong>Lisa</strong></div>
+              </article>
+              <article class="story">
+                <div class="story__cover story-bg-3"></div>
+                <div class="story__meta"><span class="avatar avatar--sm avatar--blue">DN</span><strong>Dan</strong></div>
+              </article>
+              <article class="story">
+                <div class="story__cover story-bg-4"></div>
+                <div class="story__meta"><span class="avatar avatar--sm avatar--gold">MR</span><strong>Mira</strong></div>
+              </article>
+            </div>
+          </section>
+
+          <section class="card composer">
+            <div class="composer__top">
+              <span id="composerAvatar" class="avatar avatar--gradient">AK</span>
+              <label class="composer__input-wrap">
+                <textarea id="postInput" rows="3" placeholder="Что нового, Alex?"></textarea>
+              </label>
+            </div>
+            <div class="composer__bottom">
+              <div class="composer-tools">
+                <button class="chip-btn">🎥 Видео</button>
+                <button class="chip-btn">🖼 Фото</button>
+                <button class="chip-btn">🪩 Настроение</button>
+                <button class="chip-btn">🎮 Игра</button>
+              </div>
+              <div class="composer-actions">
+                <select id="postCategory" class="control-select">
+                  <option value="all">Общий пост</option>
+                  <option value="tech">Tech</option>
+                  <option value="design">Design</option>
+                  <option value="community">Community</option>
+                  <option value="gaming">Gaming</option>
+                </select>
+                <button id="publishButton" class="primary-btn">Опубликовать</button>
+              </div>
+            </div>
+          </section>
+
+          <section id="live" class="card live-panel">
+            <div class="section-heading">
+              <div>
+                <p class="eyebrow">Онлайн сейчас</p>
+                <h2>Live Pulse</h2>
+              </div>
+              <button id="refreshLive" class="ghost-btn">Обновить live</button>
+            </div>
+            <div class="live-grid">
+              <article class="live-feature">
+                <div class="live-orb"></div>
+                <div>
+                  <strong id="liveHeadline">12 creator rooms активны</strong>
+                  <p id="liveDescription">
+                    Сейчас активнее всего обсуждают запуск продуктов, AI-дизайн и стримы с играми.
+                  </p>
+                </div>
+              </article>
+              <div class="live-stats">
+                <article><strong id="liveCreators">284</strong><span>авторов в эфире</span></article>
+                <article><strong id="liveGames">7</strong><span>игровых комнат</span></article>
+                <article><strong id="liveViewers">19.8K</strong><span>зрителей онлайн</span></article>
+              </div>
+            </div>
+          </section>
+
+          <section id="feed" class="feed-toolbar card">
+            <div>
+              <p class="eyebrow">Лента</p>
+              <h2>Публикации друзей, creator-румов и игровых сообществ</h2>
+            </div>
+            <div class="filter-group">
+              <button class="filter-chip active" data-filter="all">Все</button>
+              <button class="filter-chip" data-filter="tech">Tech</button>
+              <button class="filter-chip" data-filter="design">Design</button>
+              <button class="filter-chip" data-filter="community">Community</button>
+              <button class="filter-chip" data-filter="gaming">Gaming</button>
+            </div>
+          </section>
+
+          <section id="feedList" class="feed-list" aria-live="polite"></section>
+
+          <section id="games" class="card games-hub">
+            <div class="section-heading">
+              <div>
+                <p class="eyebrow">Свои игры</p>
+                <h2>NOMERCY Arcade</h2>
+              </div>
+            </div>
+            <div class="games-grid">
+              <article class="game-card">
+                <div class="game-card__head">
+                  <h3>Tap Rush</h3>
+                  <span class="game-tag">Reaction game</span>
+                </div>
+                <p>Нажимай как можно быстрее за 10 секунд и делись счётом в ленте.</p>
+                <div class="game-scoreboard">
+                  <strong id="tapScore">0</strong>
+                  <span>очков</span>
+                </div>
+                <div class="game-actions">
+                  <button id="startTapRush" class="primary-btn">Старт</button>
+                  <button id="tapRushButton" class="ghost-btn" disabled>Тап!</button>
+                </div>
+                <p id="tapRushTimer" class="game-caption">Нажми «Старт», чтобы начать раунд.</p>
+              </article>
+
+              <article class="game-card">
+                <div class="game-card__head">
+                  <h3>Color Match</h3>
+                  <span class="game-tag">Memory mini game</span>
+                </div>
+                <p>Запомни последовательность вспышек и повтори её. Чем дальше — тем сложнее.</p>
+                <div class="memory-board" id="memoryBoard">
+                  <button class="memory-tile tile-1" data-tile="0"></button>
+                  <button class="memory-tile tile-2" data-tile="1"></button>
+                  <button class="memory-tile tile-3" data-tile="2"></button>
+                  <button class="memory-tile tile-4" data-tile="3"></button>
+                </div>
+                <div class="game-actions">
+                  <button id="startMemoryGame" class="primary-btn">Новая игра</button>
+                  <span id="memoryStatus" class="game-caption">Готов? Запусти игру.</span>
+                </div>
+              </article>
+            </div>
+          </section>
+        </section>
+
+        <aside class="right-rail">
+          <section class="card trending-card">
+            <div class="section-heading">
+              <h2>В тренде</h2>
+              <button class="ghost-btn">Смотреть всё</button>
+            </div>
+            <ul class="trend-list">
+              <li><span>#nomercyarcade</span><strong>418K постов</strong></li>
+              <li><span>#livecreator</span><strong>207K постов</strong></li>
+              <li><span>#profilelab</span><strong>129K постов</strong></li>
+              <li><span>#futurefeed</span><strong>82K постов</strong></li>
+            </ul>
+          </section>
+
+          <section class="card city-card">
+            <div class="section-heading">
+              <div>
+                <p class="eyebrow">Глобально</p>
+                <h2>City Radar</h2>
+              </div>
+            </div>
+            <div class="city-map">
+              <span class="map-dot dot-1"></span>
+              <span class="map-dot dot-2"></span>
+              <span class="map-dot dot-3"></span>
+              <span class="map-dot dot-4"></span>
+            </div>
+            <div class="city-list">
+              <div><strong>Москва</strong><span>9 live creators</span></div>
+              <div><strong>Berlin</strong><span>4 gaming rooms</span></div>
+              <div><strong>Tokyo</strong><span>13 design spikes</span></div>
+            </div>
+          </section>
+
+          <section class="card contacts-card">
+            <div class="section-heading">
+              <h2>Контакты</h2>
+              <span class="online-badge">18 online</span>
+            </div>
+            <div class="contact-list">
+              <button class="contact-row"><span class="avatar avatar--sm avatar--mint">IR</span><span>Ira Bloom</span><small></small></button>
+              <button class="contact-row"><span class="avatar avatar--sm avatar--violet">DN</span><span>Dan North</span><small></small></button>
+              <button class="contact-row"><span class="avatar avatar--sm avatar--gold">MR</span><span>Mira Ray</span><small></small></button>
+              <button class="contact-row"><span class="avatar avatar--sm avatar--pink">KT</span><span>Kate Torch</span><small></small></button>
+            </div>
+          </section>
+
+          <section class="card premium-card">
+            <p class="eyebrow">NOMERCY Pro</p>
+            <h2>Подними свой профиль и игры в рекомендации</h2>
+            <p>AI-подсказки, кастомные темы, игровые бейджи и расширенная статистика live-аудитории.</p>
+            <button class="primary-btn premium-card__button">Попробовать бесплатно</button>
+          </section>
+        </aside>
+      </main>
+    </div>
+
+    <template id="postTemplate">
+      <article class="card post-card">
+        <header class="post-card__head">
+          <div class="post-author">
+            <span class="avatar avatar--gradient" data-avatar>AK</span>
+            <div>
+              <h3 data-author>Alex King</h3>
+              <p data-meta>Только что · В онлайне</p>
+            </div>
+          </div>
+          <button class="ghost-btn ghost-btn--icon">•••</button>
+        </header>
+
+        <div class="post-card__body">
+          <div class="post-topline">
+            <span class="post-tag" data-category-label>General</span>
+            <span class="post-status" data-status>В онлайне</span>
+          </div>
+          <p class="post-text" data-text></p>
+          <div class="post-visual">
+            <div class="visual-card visual-card--main" data-visual-title></div>
+            <div class="visual-card visual-card--sub" data-visual-accent></div>
+          </div>
+        </div>
+
+        <footer class="post-card__footer">
+          <div class="post-stats">
+            <span data-likes>0 likes</span>
+            <span data-comments>0 comments</span>
+            <span data-shares>0 shares</span>
+          </div>
+          <div class="post-actions">
+            <button class="post-action" data-action="like">👍 Нравится</button>
+            <button class="post-action" data-action="comment">💬 Комментировать</button>
+            <button class="post-action" data-action="share">↗ Поделиться</button>
+          </div>
+        </footer>
+      </article>
+    </template>
+
+    <script src="script.js"></script>
+  </body>
+</html>
