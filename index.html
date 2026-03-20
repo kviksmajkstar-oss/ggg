@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>NOMERCY — social network</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="page-bg"></div>
+    <div class="app-shell">
+      <header class="topbar card">
+        <div class="topbar__left">
+          <a class="brand" href="#" aria-label="NOMERCY home">
+            <span class="brand__logo">N</span>
+            <span>
+              <strong>NOMERCY</strong>
+              <small>social network</small>
+            </span>
+          </a>
+
+          <label class="search-box" aria-label="Поиск">
+            <span>⌕</span>
+            <input type="text" placeholder="Ищи людей, посты, рилсы, сообщества" />
+          </label>
+        </div>
+
+        <nav class="topbar__nav" aria-label="Главная навигация">
+          <a class="topnav-link active" href="#">🏠 <span>Лента</span></a>
+          <a class="topnav-link" href="#">🎬 <span>Reels</span></a>
+          <a class="topnav-link" href="#">👥 <span>Комьюнити</span></a>
+          <a class="topnav-link" href="#">🎮 <span>Play</span></a>
+        </nav>
+
+        <div class="topbar__right">
+          <button class="circle-btn" aria-label="Меню">☰</button>
+          <button class="circle-btn" aria-label="Чаты">💬</button>
+          <button class="circle-btn" aria-label="Уведомления">🔔</button>
+          <button class="profile-pill">
+            <span class="avatar avatar--gradient">AK</span>
+            <span>
+              <strong>Alex King</strong>
+              <small>Creator mode</small>
+            </span>
+          </button>
+        </div>
+      </header>
+
+      <main class="layout">
+        <aside class="left-rail">
+          <section class="card profile-card">
+            <div class="profile-card__hero"></div>
+            <div class="profile-card__body">
+              <span class="avatar avatar--xl avatar--gradient">AK</span>
+              <h1>Alex King</h1>
+              <p>Основатель digital-клуба, UI-энтузиаст и охотник за сильными идеями.</p>
+              <div class="profile-metrics">
+                <div><strong>12.4K</strong><span>подписчиков</span></div>
+                <div><strong>94%</strong><span>engagement</span></div>
+                <div><strong>28</strong><span>комьюнити</span></div>
+              </div>
+            </div>
+          </section>
+
+          <section class="card shortcuts-card">
+            <div class="section-title">
+              <h2>Быстрый доступ</h2>
+            </div>
+            <nav class="shortcut-list">
+              <a href="#">📰 Моя лента</a>
+              <a href="#">👤 Друзья</a>
+              <a href="#">🛍 Marketplace</a>
+              <a href="#">🎥 Видео</a>
+              <a href="#">📅 События</a>
+              <a href="#">💾 Сохранённое</a>
+            </nav>
+          </section>
+
+          <section class="card rooms-card">
+            <div class="section-title">
+              <h2>Комнаты</h2>
+              <button class="ghost-btn">Создать</button>
+            </div>
+            <div class="room-list">
+              <button class="room-pill">⚡ Design Sprint</button>
+              <button class="room-pill">🚀 Startup Lab</button>
+              <button class="room-pill">🎧 Night Shift</button>
+            </div>
+          </section>
+        </aside>
+
+        <section class="feed-column">
+          <section class="stories card">
+            <div class="section-title">
+              <h2>Stories</h2>
+              <button class="ghost-btn">Все истории</button>
+            </div>
+            <div class="story-list">
+              <article class="story story--create">
+                <div class="story__cover story-bg-1"></div>
+                <div class="story__meta">
+                  <span class="story__plus">+</span>
+                  <strong>Создать историю</strong>
+                </div>
+              </article>
+              <article class="story">
+                <div class="story__cover story-bg-2"></div>
+                <div class="story__meta"><span class="avatar avatar--sm avatar--pink">LS</span><strong>Lisa</strong></div>
+              </article>
+              <article class="story">
+                <div class="story__cover story-bg-3"></div>
+                <div class="story__meta"><span class="avatar avatar--sm avatar--blue">DN</span><strong>Den</strong></div>
+              </article>
+              <article class="story">
+                <div class="story__cover story-bg-4"></div>
+                <div class="story__meta"><span class="avatar avatar--sm avatar--gold">MR</span><strong>Mira</strong></div>
+              </article>
+            </div>
+          </section>
+
+          <section class="card composer">
+            <div class="composer__top">
+              <span class="avatar avatar--gradient">AK</span>
+              <label class="composer__input-wrap">
+                <textarea id="postInput" rows="3" placeholder="Что нового, Alex?"></textarea>
+              </label>
+            </div>
+            <div class="composer__bottom">
+              <div class="composer-tools">
+                <button class="composer-chip">🎥 Видео</button>
+                <button class="composer-chip">🖼 Фото</button>
+                <button class="composer-chip">🪩 Настроение</button>
+              </div>
+              <div class="composer-actions">
+                <select id="postCategory" class="composer-select" aria-label="Категория поста">
+                  <option value="all">Общий пост</option>
+                  <option value="tech">Tech</option>
+                  <option value="design">Design</option>
+                  <option value="community">Community</option>
+                </select>
+                <button id="publishButton" class="primary-btn">Опубликовать</button>
+              </div>
+            </div>
+          </section>
+
+          <section class="card pulse-card">
+            <div class="section-title">
+              <div>
+                <p class="eyebrow">Уникальная фишка NOMERCY</p>
+                <h2>Pulse Radar</h2>
+              </div>
+              <button id="shufflePulse" class="ghost-btn">Обновить Pulse</button>
+            </div>
+            <div class="pulse-grid">
+              <div class="pulse-main">
+                <div class="pulse-ring">
+                  <span id="pulseScore">87</span>
+                  <small>Mercy score</small>
+                </div>
+                <p>
+                  Radar анализирует, что сейчас «горит» в твоём круге общения: дизайн, стартапы,
+                  музыка и live-комьюнити. Так NOMERCY не просто копирует соцсеть, а помогает
+                  ловить ритм аудитории.
+                </p>
+              </div>
+              <div class="pulse-stats">
+                <article><strong id="pulseDesign">+18%</strong><span>дизайн-волна</span></article>
+                <article><strong id="pulseTech">+24%</strong><span>tech momentum</span></article>
+                <article><strong id="pulseLive">12 city rooms</strong><span>live активность</span></article>
+              </div>
+            </div>
+          </section>
+
+          <section class="feed-toolbar card">
+            <div>
+              <p class="eyebrow">Лента</p>
+              <h2>Публикации друзей и комьюнити</h2>
+            </div>
+            <div class="filter-group" role="tablist" aria-label="Фильтры ленты">
+              <button class="filter-chip active" data-filter="all">Все</button>
+              <button class="filter-chip" data-filter="tech">Tech</button>
+              <button class="filter-chip" data-filter="design">Design</button>
+              <button class="filter-chip" data-filter="community">Community</button>
+            </div>
+          </section>
+
+          <section id="feedList" class="feed-list" aria-live="polite"></section>
+        </section>
+
+        <aside class="right-rail">
+          <section class="card trending-card">
+            <div class="section-title">
+              <h2>В тренде</h2>
+              <button class="ghost-btn">Смотреть всё</button>
+            </div>
+            <ul class="trend-list">
+              <li><span>#nomercyverse</span><strong>328K публикаций</strong></li>
+              <li><span>#buildinpublic</span><strong>191K публикаций</strong></li>
+              <li><span>#futureui</span><strong>118K публикаций</strong></li>
+              <li><span>#creatorloop</span><strong>84K публикаций</strong></li>
+            </ul>
+          </section>
+
+          <section class="card radar-mini-card">
+            <div class="section-title">
+              <h2>City Radar</h2>
+            </div>
+            <div class="radar-map">
+              <span class="radar-dot dot-1"></span>
+              <span class="radar-dot dot-2"></span>
+              <span class="radar-dot dot-3"></span>
+              <span class="radar-dot dot-4"></span>
+            </div>
+            <div class="city-list">
+              <div><strong>Москва</strong><span>9 live creators</span></div>
+              <div><strong>Berlin</strong><span>5 product meetups</span></div>
+              <div><strong>Seoul</strong><span>12 trend spikes</span></div>
+            </div>
+          </section>
+
+          <section class="card contacts-card">
+            <div class="section-title">
+              <h2>Контакты</h2>
+              <span class="online-badge">14 online</span>
+            </div>
+            <div class="contact-list">
+              <button class="contact-row"><span class="avatar avatar--sm avatar--mint">IR</span><span>Ira Bloom</span><small></small></button>
+              <button class="contact-row"><span class="avatar avatar--sm avatar--violet">DN</span><span>Dan North</span><small></small></button>
+              <button class="contact-row"><span class="avatar avatar--sm avatar--gold">MR</span><span>Mira Ray</span><small></small></button>
+              <button class="contact-row"><span class="avatar avatar--sm avatar--pink">KT</span><span>Kate Torch</span><small></small></button>
+            </div>
+          </section>
+
+          <section class="card promo-card">
+            <p class="eyebrow">NOMERCY Pro</p>
+            <h2>Выведи профиль в топ рекомендаций</h2>
+            <p>
+              Расширенная аналитика, верификация, AI-подсказки для постов и приоритетный рост.
+            </p>
+            <button class="primary-btn promo-card__button">Попробовать бесплатно</button>
+          </section>
+        </aside>
+      </main>
+    </div>
+
+    <template id="postTemplate">
+      <article class="card post-card">
+        <header class="post-card__head">
+          <div class="post-author">
+            <span class="avatar avatar--gradient" data-avatar>AK</span>
+            <div>
+              <h3 data-author>Alex King</h3>
+              <p data-meta>Только что · Для друзей</p>
+            </div>
+          </div>
+          <button class="ghost-icon" aria-label="Действия">•••</button>
+        </header>
+
+        <div class="post-card__body">
+          <div class="post-tag" data-category-label>General</div>
+          <p class="post-text" data-text></p>
+          <div class="post-visual" data-visual>
+            <div class="visual-card visual-card--main" data-visual-title></div>
+            <div class="visual-card visual-card--sub" data-visual-accent></div>
+          </div>
+        </div>
+
+        <footer class="post-card__footer">
+          <div class="post-stats">
+            <span data-likes>0 likes</span>
+            <span data-comments>0 comments</span>
+            <span data-shares>0 shares</span>
+          </div>
+          <div class="post-actions">
+            <button class="post-action" data-action="like">👍 Нравится</button>
+            <button class="post-action" data-action="comment">💬 Комментировать</button>
+            <button class="post-action" data-action="share">↗ Поделиться</button>
+          </div>
+        </footer>
+      </article>
+    </template>
+
+    <script src="script.js"></script>
+  </body>
+</html>
