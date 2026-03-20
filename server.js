@@ -4,8 +4,8 @@ const path = require('path');
 const crypto = require('crypto');
 const { URL } = require('url');
 
-const HOST = '0.0.0.0';
-const PORT = 8000;
+const HOST = process.env.HOST || '0.0.0.0';
+const PORT = Number(process.env.PORT || 8000);
 const SESSION_COOKIE = 'nomercy_session';
 const DATA_PATH = path.join(__dirname, 'nomercy-data.json');
 const STATIC_FILES = {
@@ -181,27 +181,37 @@ function sendJson(res, status, payload, headers = {}) {
   res.end(body);
 }
 
-function sendFile(res, filePath) {
+function sendFile(req, res, filePath) {
   const ext = path.extname(filePath);
   const content = fs.readFileSync(filePath);
   res.writeHead(200, {
     'Content-Type': CONTENT_TYPES[ext] || 'application/octet-stream',
     'Content-Length': content.length,
   });
-  res.end(content);
+  res.end(req.method === 'HEAD' ? undefined : content);
+}
+
+function getRequestUrl(req) {
+  const baseHost = req.headers.host || `127.0.0.1:${PORT}`;
+  return new URL(req.url || '/', `http://${baseHost}`);
 }
 
 const server = http.createServer(async (req, res) => {
-  const url = new URL(req.url, `http://${req.headers.host}`);
-  const pathname = url.pathname;
-  if (STATIC_FILES[pathname] && req.method === 'GET') {
-    return sendFile(res, path.join(__dirname, STATIC_FILES[pathname]));
-  }
-
-  const data = readData();
-  const currentUser = getCurrentUser(req, data);
-
   try {
+    const url = getRequestUrl(req);
+    const pathname = url.pathname;
+
+    if (STATIC_FILES[pathname] && (req.method === 'GET' || req.method === 'HEAD')) {
+      return sendFile(req, res, path.join(__dirname, STATIC_FILES[pathname]));
+    }
+
+    if (req.method === 'GET' && pathname === '/health') {
+      return sendJson(res, 200, { ok: true, host: HOST, port: PORT });
+    }
+
+    const data = readData();
+    const currentUser = getCurrentUser(req, data);
+
     if (req.method === 'GET' && pathname === '/api/bootstrap') {
       return sendJson(res, 200, {
         current_user: currentUser ? serializeUser(currentUser) : null,
@@ -342,8 +352,26 @@ const server = http.createServer(async (req, res) => {
 
     return sendJson(res, 404, { error: 'Не найдено' });
   } catch (error) {
-    return sendJson(res, 500, { error: error.message || 'Внутренняя ошибка сервера' });
+    const status = error instanceof TypeError ? 400 : 500;
+    const message = status === 400 ? 'Некорректный HTTP-запрос' : error.message || 'Внутренняя ошибка сервера';
+    if (!res.headersSent) {
+      return sendJson(res, status, { error: message });
+    }
+    res.end();
   }
+});
+
+server.on('clientError', (error, socket) => {
+  if (!socket.writable) {
+    return;
+  }
+  socket.end(
+    'HTTP/1.1 400 Bad Request\r\n' +
+      'Content-Type: application/json; charset=utf-8\r\n' +
+      'Connection: close\r\n' +
+      '\r\n' +
+      JSON.stringify({ error: 'Некорректный HTTP-запрос' }),
+  );
 });
 
 server.listen(PORT, HOST, () => {
