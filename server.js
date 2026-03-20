@@ -4,7 +4,7 @@ const path = require('path');
 const crypto = require('crypto');
 const { URL } = require('url');
 
-const HOST = '127.0.0.1';
+const HOST = '0.0.0.0';
 const PORT = 8000;
 const SESSION_COOKIE = 'nomercy_session';
 const DATA_PATH = path.join(__dirname, 'nomercy-data.json');
@@ -36,36 +36,22 @@ function verifyPassword(password, stored) {
   return crypto.timingSafeEqual(Buffer.from(hash, 'hex'), Buffer.from(original, 'hex'));
 }
 
-function seedData() {
+function createEmptyData() {
   return {
-    nextUserId: 5,
-    nextPostId: 4,
-    nextMessageId: 5,
-    users: [
-      { id: 1, name: 'Руслан Kviksmajk', handle: 'kviksmajk', password_hash: createPasswordHash('nomercy123'), bio: 'Музыкант, автор kviksmajkmusic и разработчик NOMERCY.', status: 'В онлайне', theme: 'dark', created_at: now() },
-      { id: 2, name: 'Lisa Stone', handle: 'lisastone', password_hash: createPasswordHash('design123'), bio: 'UI / motion designer в creator-продуктах.', status: 'В эфире', theme: 'light', created_at: now() },
-      { id: 3, name: 'Dan North', handle: 'dannorth', password_hash: createPasswordHash('product123'), bio: 'Product strategist и человек про social UX.', status: 'На связи', theme: 'dark', created_at: now() },
-      { id: 4, name: 'Mira Ray', handle: 'miraray', password_hash: createPasswordHash('arcade123'), bio: 'Ведёт игровые комнаты и community events.', status: 'В студии', theme: 'dark', created_at: now() },
-    ],
+    nextUserId: 1,
+    nextPostId: 1,
+    nextMessageId: 1,
+    users: [],
     sessions: [],
-    posts: [
-      { id: 1, user_id: 1, content: 'Привет! Я Руслан Kviksmajk — музыкант, автор kviksmajkmusic и разработчик NOMERCY. Теперь проект можно запускать без Python — через Node.js.', created_at: now() },
-      { id: 2, user_id: 2, content: 'NOMERCY уже реально работает как локальная соцсеть: аккаунты, посты, лайки, переписка.', created_at: now() },
-      { id: 3, user_id: 3, content: 'Удобно, что теперь запуск на Windows не упирается в отсутствие Python.', created_at: now() },
-    ],
+    posts: [],
     likes: [],
-    messages: [
-      { id: 1, sender_id: 2, recipient_id: 1, content: 'Руслан, Node-версия решает проблему запуска на Windows.', created_at: now() },
-      { id: 2, sender_id: 1, recipient_id: 2, content: 'Да, теперь можно запускать NOMERCY без Python.', created_at: now() },
-      { id: 3, sender_id: 3, recipient_id: 1, content: 'Это намного удобнее для локальных демо.', created_at: now() },
-      { id: 4, sender_id: 1, recipient_id: 3, content: 'Согласен — меньше барьеров для запуска.', created_at: now() },
-    ],
+    messages: [],
   };
 }
 
 function ensureDataFile() {
   if (!fs.existsSync(DATA_PATH)) {
-    fs.writeFileSync(DATA_PATH, JSON.stringify(seedData(), null, 2));
+    fs.writeFileSync(DATA_PATH, JSON.stringify(createEmptyData(), null, 2));
   }
 }
 
@@ -98,6 +84,8 @@ function serializeUser(user) {
     bio: user.bio,
     status: user.status,
     theme: user.theme,
+    avatar_data: user.avatar_data || '',
+    created_at: user.created_at,
   };
 }
 
@@ -129,6 +117,7 @@ function buildFeed(data, viewerId = null) {
           name: author.name,
           handle: author.handle,
           status: author.status,
+          avatar_data: author.avatar_data || '',
         },
         likes: likes.length,
         liked: Boolean(viewerId && likes.find((like) => like.user_id === viewerId)),
@@ -218,7 +207,7 @@ const server = http.createServer(async (req, res) => {
         current_user: currentUser ? serializeUser(currentUser) : null,
         users: data.users.map(serializeUser),
         feed: buildFeed(data, currentUser?.id),
-        chats: currentUser ? buildChats(data, currentUser.id) : undefined,
+        chats: currentUser ? buildChats(data, currentUser.id) : [],
       });
     }
 
@@ -238,6 +227,9 @@ const server = http.createServer(async (req, res) => {
       if (!name || !handle || !password) {
         return sendJson(res, 400, { error: 'Заполни имя, логин и пароль' });
       }
+      if (handle.length < 3) {
+        return sendJson(res, 400, { error: 'Логин должен быть не короче 3 символов' });
+      }
       if (data.users.find((user) => user.handle === handle)) {
         return sendJson(res, 400, { error: 'Такой логин уже занят' });
       }
@@ -249,6 +241,7 @@ const server = http.createServer(async (req, res) => {
         bio: 'Новый пользователь NOMERCY.',
         status: 'В онлайне',
         theme: 'dark',
+        avatar_data: '',
         created_at: now(),
       });
       writeData(data);
@@ -292,6 +285,9 @@ const server = http.createServer(async (req, res) => {
       user.bio = String(body.bio || user.bio).trim();
       user.status = String(body.status || user.status).trim() || 'В онлайне';
       user.theme = String(body.theme || user.theme).trim() || 'dark';
+      if (typeof body.avatar_data === 'string') {
+        user.avatar_data = body.avatar_data;
+      }
       writeData(data);
       return sendJson(res, 200, { user: serializeUser(user) });
     }
@@ -326,6 +322,9 @@ const server = http.createServer(async (req, res) => {
       const content = String(body.content || '').trim();
       if (!peerId || !content) {
         return sendJson(res, 400, { error: 'Нужно выбрать собеседника и ввести сообщение' });
+      }
+      if (!data.users.find((user) => user.id === peerId)) {
+        return sendJson(res, 404, { error: 'Собеседник не найден' });
       }
       data.messages.push({
         id: data.nextMessageId++,

@@ -7,6 +7,7 @@ const state = {
   activeChatPeerId: null,
   messages: [],
   theme: localStorage.getItem('nomercy-theme') || 'dark',
+  avatarData: '',
 };
 
 const authView = document.getElementById('authView');
@@ -28,6 +29,7 @@ const profileNameInput = document.getElementById('profileNameInput');
 const profileBioInput = document.getElementById('profileBioInput');
 const profileStatusInput = document.getElementById('profileStatusInput');
 const profileThemeInput = document.getElementById('profileThemeInput');
+const profileAvatarInput = document.getElementById('profileAvatarInput');
 
 const postForm = document.getElementById('postForm');
 const postInput = document.getElementById('postInput');
@@ -65,6 +67,13 @@ function initials(name) {
     .join('') || 'NM';
 }
 
+function avatarMarkup(user, extraClass = '') {
+  const content = user.avatar_data
+    ? `<img src="${user.avatar_data}" alt="${user.name}" />`
+    : initials(user.name);
+  return `<div class="avatar ${extraClass}">${content}</div>`;
+}
+
 function applyTheme(theme) {
   state.theme = theme;
   document.body.classList.toggle('light', theme === 'light');
@@ -83,7 +92,9 @@ function renderUser() {
   if (!state.currentUser) {
     return;
   }
-  profileAvatar.textContent = initials(state.currentUser.name);
+  profileAvatar.innerHTML = state.currentUser.avatar_data
+    ? `<img src="${state.currentUser.avatar_data}" alt="${state.currentUser.name}" />`
+    : initials(state.currentUser.name);
   profileName.textContent = state.currentUser.name;
   profileHandle.textContent = `@${state.currentUser.handle}`;
   profileBio.textContent = state.currentUser.bio;
@@ -91,13 +102,21 @@ function renderUser() {
   profileBioInput.value = state.currentUser.bio;
   profileStatusInput.value = state.currentUser.status;
   profileThemeInput.value = state.currentUser.theme;
+  state.avatarData = state.currentUser.avatar_data || '';
 }
 
 function renderFeed() {
   feedList.innerHTML = '';
+  if (state.feed.length === 0) {
+    feedList.innerHTML = '<p class="hint-text">Пока нет постов. Опубликуй первый пост в NOMERCY.</p>';
+    return;
+  }
   state.feed.forEach((post) => {
     const node = postTemplate.content.firstElementChild.cloneNode(true);
     node.dataset.postId = String(post.id);
+    node.querySelector('[data-avatar]').innerHTML = post.author.avatar_data
+      ? `<img src="${post.author.avatar_data}" alt="${post.author.name}" />`
+      : initials(post.author.name);
     node.querySelector('[data-author]').textContent = `${post.author.name} · @${post.author.handle}`;
     node.querySelector('[data-meta]').textContent = `${post.author.status} · ${post.created_at}`;
     node.querySelector('[data-content]').textContent = post.content;
@@ -111,21 +130,27 @@ function renderFeed() {
 function renderUsers() {
   userList.innerHTML = '';
   chatList.innerHTML = '';
-  state.users
-    .filter((user) => !state.currentUser || user.id !== state.currentUser.id)
-    .forEach((user) => {
-      const userButton = document.createElement('button');
-      userButton.className = 'user-chip';
-      userButton.dataset.userId = String(user.id);
-      userButton.innerHTML = `<strong>${user.name}</strong><small>@${user.handle} · ${user.status}</small>`;
-      userList.appendChild(userButton);
-    });
+  const others = state.users.filter((user) => !state.currentUser || user.id !== state.currentUser.id);
+
+  if (others.length === 0) {
+    userList.innerHTML = '<p class="hint-text">Пока больше нет пользователей. Зарегистрируйся на другом устройстве, чтобы проверить multi-device режим.</p>';
+    chatList.innerHTML = '<p class="hint-text">Нет доступных диалогов.</p>';
+    return;
+  }
+
+  others.forEach((user) => {
+    const userButton = document.createElement('button');
+    userButton.className = 'user-chip';
+    userButton.dataset.userId = String(user.id);
+    userButton.innerHTML = `${avatarMarkup(user, 'avatar--small')}<div><strong>${user.name}</strong><small>@${user.handle} · ${user.status}</small></div>`;
+    userList.appendChild(userButton);
+  });
 
   state.chats.forEach((chat) => {
     const chatButton = document.createElement('button');
     chatButton.className = 'user-chip';
     chatButton.dataset.userId = String(chat.id);
-    chatButton.innerHTML = `<strong>${chat.name}</strong><small>${chat.last_message}</small>`;
+    chatButton.innerHTML = `${avatarMarkup(chat, 'avatar--small')}<div><strong>${chat.name}</strong><small>${chat.last_message}</small></div>`;
     if (state.activeChatPeerId === chat.id) {
       chatButton.classList.add('active');
     }
@@ -142,7 +167,7 @@ function renderMessages() {
   }
   chatWindow.classList.remove('hidden');
   chatPeerStatus.textContent = `Чат с @${peer.handle}`;
-  chatHeader.innerHTML = `<strong>${peer.name}</strong><span class="hint-text">${peer.status}</span>`;
+  chatHeader.innerHTML = `${avatarMarkup(peer, 'avatar--small')}<div><strong>${peer.name}</strong><span class="hint-text">${peer.status}</span></div>`;
   messageList.innerHTML = '';
   state.messages.forEach((message) => {
     const bubble = document.createElement('div');
@@ -181,6 +206,8 @@ async function bootstrap() {
     renderUsers();
     if (state.chats[0]) {
       await loadMessages(state.chats[0].id);
+    } else {
+      renderMessages();
     }
   }
 }
@@ -207,7 +234,7 @@ registerForm.addEventListener('submit', async (event) => {
       method: 'POST',
       body: JSON.stringify(Object.fromEntries(formData.entries())),
     });
-    authMessage.textContent = 'Аккаунт создан. Теперь войди в систему.';
+    authMessage.textContent = 'Профиль создан. Теперь войди в систему.';
     setAuthTab('login');
   } catch (error) {
     authMessage.textContent = error.message;
@@ -222,12 +249,26 @@ logoutButton.addEventListener('click', async () => {
   await api('/api/logout', { method: 'POST', body: '{}' });
   state.currentUser = null;
   state.messages = [];
+  state.activeChatPeerId = null;
   setAuthenticatedUI(false);
   setAuthTab('login');
 });
 
 themeToggle.addEventListener('click', () => {
   applyTheme(state.theme === 'dark' ? 'light' : 'dark');
+});
+
+profileAvatarInput.addEventListener('change', async (event) => {
+  const file = event.target.files?.[0];
+  if (!file) {
+    return;
+  }
+  const reader = new FileReader();
+  reader.onload = () => {
+    state.avatarData = typeof reader.result === 'string' ? reader.result : '';
+    profileAvatar.innerHTML = `<img src="${state.avatarData}" alt="preview" />`;
+  };
+  reader.readAsDataURL(file);
 });
 
 profileForm.addEventListener('submit', async (event) => {
@@ -237,6 +278,7 @@ profileForm.addEventListener('submit', async (event) => {
     bio: profileBioInput.value,
     status: profileStatusInput.value,
     theme: profileThemeInput.value,
+    avatar_data: state.avatarData,
   };
   const data = await api('/api/profile', {
     method: 'POST',
@@ -244,8 +286,7 @@ profileForm.addEventListener('submit', async (event) => {
   });
   state.currentUser = data.user;
   renderUser();
-  state.users = state.users.map((user) => (user.id === data.user.id ? data.user : user));
-  renderUsers();
+  await bootstrap();
 });
 
 postForm.addEventListener('submit', async (event) => {

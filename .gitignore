@@ -65,3 +65,4 @@ env/
 .idea/
 # NOMERCY runtime storage
 nomercy-data.json
+server.py

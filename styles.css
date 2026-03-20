@@ -7,7 +7,6 @@
   --muted: #9aa7c9;
   --accent: #4da3ff;
   --accent-2: #8a5cff;
-  --success: #35d58a;
   --shadow: 0 24px 70px rgba(0, 0, 0, 0.32);
 }
 
@@ -61,7 +60,7 @@ textarea { resize: vertical; }
   backdrop-filter: blur(20px);
   box-shadow: var(--shadow);
 }
-.topbar, .brand-block, .topbar-actions, .section-head, .post-head, .post-footer, .chat-header {
+.topbar, .brand-block, .topbar-actions, .section-head, .post-head, .post-footer, .chat-header, .post-author-block {
   display: flex;
   align-items: center;
 }
@@ -72,28 +71,35 @@ textarea { resize: vertical; }
 }
 .brand-block { gap: 12px; }
 .brand-logo, .avatar {
-  width: 48px;
-  height: 48px;
+  width: 56px;
+  height: 56px;
   border-radius: 50%;
   display: grid;
   place-items: center;
   font-weight: 800;
   color: white;
   background: linear-gradient(135deg, var(--accent), var(--accent-2));
+  overflow: hidden;
+}
+.avatar--small { width: 42px; height: 42px; }
+.avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 .brand-block strong, .section-head h3, .profile-body h2 { display: block; margin: 0; }
-.brand-block small, .hint-text, .message-text, .profile-body p, .post-head p, .post-footer, .chat-peer, .pill {
+.brand-block small, .hint-text, .message-text, .profile-body p, .post-head p, .post-footer, .pill {
   color: var(--muted);
 }
 .topbar-actions { gap: 12px; }
 .layout { margin-top: 22px; }
 .auth-layout, .app-layout {
   display: grid;
-  grid-template-columns: 1.2fr .8fr;
+  grid-template-columns: 1.15fr .85fr;
   gap: 22px;
 }
 .app-layout {
-  grid-template-columns: 300px minmax(0, 1fr) 340px;
+  grid-template-columns: 320px minmax(0, 1fr) 360px;
   align-items: start;
 }
 .left-rail, .feed-column, .right-rail, .stack-form, .feed-list, .user-list, .chat-list, .message-list {
@@ -103,7 +109,7 @@ textarea { resize: vertical; }
 .hero-card, .auth-card, .profile-card, .profile-edit-card, .composer-card, .feed-card, .users-card, .chat-card {
   padding: 20px;
 }
-.hero-card h1 { margin: 10px 0 14px; font-size: clamp(2rem, 3vw, 3.2rem); }
+.hero-card h1 { margin: 10px 0 14px; font-size: clamp(1.8rem, 3vw, 3rem); line-height: 1.2; }
 .eyebrow {
   margin: 0;
   text-transform: uppercase;
@@ -140,7 +146,7 @@ textarea { resize: vertical; }
   margin-top: -34px;
   text-align: center;
 }
-.profile-body .avatar { margin: 0 auto 12px; width: 76px; height: 76px; }
+.profile-body .avatar { margin: 0 auto 12px; width: 86px; height: 86px; }
 .profile-body h2 { margin-bottom: 6px; }
 .section-head { justify-content: space-between; gap: 10px; }
 .post-item {
@@ -150,13 +156,15 @@ textarea { resize: vertical; }
   background: rgba(255,255,255,.04);
 }
 .post-head { justify-content: space-between; gap: 12px; }
+.post-author-block { gap: 12px; align-items: flex-start; }
 .post-content { line-height: 1.7; }
 .like-btn.is-liked { background: rgba(77,163,255,.2); }
 .user-chip {
   text-align: left;
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
+  display: grid;
+  gap: 8px;
+  grid-template-columns: 42px 1fr;
+  align-items: center;
 }
 .user-chip.active { background: rgba(77,163,255,.18); }
 .chat-window {
@@ -169,6 +177,8 @@ textarea { resize: vertical; }
   min-height: 260px;
   max-height: 420px;
   overflow: auto;
+  display: grid;
+  gap: 12px;
 }
 .message-bubble {
   max-width: 78%;
@@ -188,4 +198,8 @@ textarea { resize: vertical; }
 .message-text { min-height: 1.4em; }
 @media (max-width: 1180px) {
   .auth-layout, .app-layout { grid-template-columns: 1fr; }
+}
+@media (max-width: 760px) {
+  .app-shell { width: min(100% - 16px, 100%); }
+  .topbar, .topbar-actions, .tabs, .post-head, .section-head { flex-direction: column; align-items: stretch; }
 }
