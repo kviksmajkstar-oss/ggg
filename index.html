@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>NOMERCY — real social network prototype</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="page-glow"></div>
+    <div class="app-shell">
+      <header class="topbar card">
+        <div class="brand-block">
+          <div class="brand-logo">N</div>
+          <div>
+            <strong>NOMERCY</strong>
+            <small>Руслан Kviksmajk • kviksmajkmusic</small>
+          </div>
+        </div>
+        <div class="topbar-actions">
+          <button id="themeToggle" class="ghost-btn">Сменить тему</button>
+          <button id="logoutButton" class="ghost-btn hidden">Выйти</button>
+        </div>
+      </header>
+
+      <main class="layout">
+        <section id="authView" class="auth-layout">
+          <article class="card hero-card">
+            <p class="eyebrow">Реально работающий сайт</p>
+            <h1>NOMERCY — минимальная рабочая соцсеть с аккаунтами, постами, профилями и чатами.</h1>
+            <p>
+              Здесь уже есть настоящий backend на Python + SQLite: регистрация, вход, профиль,
+              посты, лайки и личные сообщения. Это не просто UI-макет.
+            </p>
+          </article>
+
+          <article class="card auth-card">
+            <div class="tabs">
+              <button class="auth-tab active" data-auth-tab="login">Вход</button>
+              <button class="auth-tab" data-auth-tab="register">Регистрация</button>
+            </div>
+
+            <form id="loginForm" class="auth-form active">
+              <label>
+                <span>Логин</span>
+                <input name="handle" placeholder="например, kviksmajk" required />
+              </label>
+              <label>
+                <span>Пароль</span>
+                <input name="password" type="password" placeholder="пароль" required />
+              </label>
+              <button class="primary-btn" type="submit">Войти</button>
+            </form>
+
+            <form id="registerForm" class="auth-form">
+              <label>
+                <span>Имя</span>
+                <input name="name" placeholder="Твоё имя" required />
+              </label>
+              <label>
+                <span>Логин</span>
+                <input name="handle" placeholder="уникальный логин" required />
+              </label>
+              <label>
+                <span>Пароль</span>
+                <input name="password" type="password" placeholder="придумай пароль" required />
+              </label>
+              <button class="primary-btn" type="submit">Создать аккаунт</button>
+            </form>
+
+            <p class="hint-text">
+              Демо-аккаунты: <code>kviksmajk / nomercy123</code>, <code>lisastone / design123</code>.
+            </p>
+            <p id="authMessage" class="message-text"></p>
+          </article>
+        </section>
+
+        <section id="appView" class="app-layout hidden">
+          <aside class="left-rail">
+            <article class="card profile-card">
+              <div class="profile-cover"></div>
+              <div class="profile-body">
+                <div id="profileAvatar" class="avatar">RK</div>
+                <h2 id="profileName">Руслан Kviksmajk</h2>
+                <p id="profileHandle">@kviksmajk</p>
+                <p id="profileBio">Музыкант, автор kviksmajkmusic и разработчик NOMERCY.</p>
+              </div>
+            </article>
+
+            <article class="card profile-edit-card">
+              <div class="section-head">
+                <h3>Редактировать профиль</h3>
+              </div>
+              <form id="profileForm" class="stack-form">
+                <label>
+                  <span>Имя</span>
+                  <input id="profileNameInput" required />
+                </label>
+                <label>
+                  <span>Био</span>
+                  <textarea id="profileBioInput" rows="3"></textarea>
+                </label>
+                <label>
+                  <span>Статус</span>
+                  <input id="profileStatusInput" placeholder="Например, В онлайне" />
+                </label>
+                <label>
+                  <span>Тема профиля</span>
+                  <select id="profileThemeInput">
+                    <option value="dark">Dark</option>
+                    <option value="light">Light</option>
+                  </select>
+                </label>
+                <button class="primary-btn" type="submit">Сохранить профиль</button>
+              </form>
+            </article>
+          </aside>
+
+          <section class="feed-column">
+            <article class="card composer-card">
+              <div class="section-head">
+                <h3>Создать пост</h3>
+                <span class="pill">живой feed</span>
+              </div>
+              <form id="postForm" class="stack-form">
+                <textarea id="postInput" rows="4" placeholder="Что нового в NOMERCY?"></textarea>
+                <button class="primary-btn" type="submit">Опубликовать</button>
+              </form>
+            </article>
+
+            <article class="card feed-card">
+              <div class="section-head">
+                <h3>Лента</h3>
+                <span class="hint-text">настоящие записи из SQLite</span>
+              </div>
+              <div id="feedList" class="feed-list"></div>
+            </article>
+          </section>
+
+          <aside class="right-rail">
+            <article class="card users-card">
+              <div class="section-head">
+                <h3>Пользователи</h3>
+                <span class="pill">online social</span>
+              </div>
+              <div id="userList" class="user-list"></div>
+            </article>
+
+            <article class="card chat-card">
+              <div class="section-head">
+                <h3>Личные сообщения</h3>
+                <span id="chatPeerStatus" class="hint-text">Выбери собеседника</span>
+              </div>
+              <div id="chatList" class="chat-list"></div>
+              <div id="chatWindow" class="chat-window hidden">
+                <div id="chatHeader" class="chat-header"></div>
+                <div id="messageList" class="message-list"></div>
+                <form id="messageForm" class="chat-form">
+                  <input id="messageInput" placeholder="Напиши сообщение пользователю..." />
+                  <button class="primary-btn" type="submit">Отправить</button>
+                </form>
+              </div>
+            </article>
+          </aside>
+        </section>
+      </main>
+    </div>
+
+    <template id="postTemplate">
+      <article class="post-item">
+        <div class="post-head">
+          <div>
+            <strong data-author></strong>
+            <p data-meta></p>
+          </div>
+          <button class="ghost-btn like-btn" data-like-button>❤</button>
+        </div>
+        <p class="post-content" data-content></p>
+        <div class="post-footer">
+          <span data-likes></span>
+        </div>
+      </article>
+    </template>
+
+    <script src="script.js"></script>
+  </body>
+</html>
