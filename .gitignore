@@ -63,3 +63,5 @@ env/
 .DS_Store
 .vscode/
 .idea/
+# NOMERCY runtime storage
+nomercy-data.json
