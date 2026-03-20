@@ -39,3 +39,30 @@
 
 # debug information files
 *.dwo
+
+# Python cache / virtual environments
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+env/
+.pytest_cache/
+.mypy_cache/
+
+# Local runtime data
+*.db
+*.sqlite
+*.sqlite3
+*.log
+
+# Environment files
+.env
+.env.*
+
+# OS / editor files
+.DS_Store
+.vscode/
+.idea/
+# NOMERCY runtime storage
+nomercy-data.json
+server.py
