@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>NOMERCY — social OS by Ruslan Kviksmajk</title>
+    <title>NOMERCY — real social network prototype</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -12,463 +12,180 @@
     />
     <link rel="stylesheet" href="styles.css" />
   </head>
-  <body data-theme="dark">
+  <body>
     <div class="page-glow"></div>
     <div class="app-shell">
       <header class="topbar card">
-        <div class="topbar__left">
-          <a class="brand" href="#" aria-label="NOMERCY home">
-            <span class="brand__logo">N</span>
-            <span>
-              <strong>NOMERCY</strong>
-              <small>by Ruslan Kviksmajk</small>
-            </span>
-          </a>
-
-          <label class="search-box" aria-label="Поиск">
-            <span>⌕</span>
-            <input type="text" placeholder="Поиск людей, чатов, игр и идей" />
-          </label>
+        <div class="brand-block">
+          <div class="brand-logo">N</div>
+          <div>
+            <strong>NOMERCY</strong>
+            <small>Руслан Kviksmajk • kviksmajkmusic</small>
+          </div>
         </div>
-
-        <nav class="topbar__nav" aria-label="Главная навигация">
-          <button class="nav-tab active" data-tab="feed">Лента</button>
-          <button class="nav-tab" data-tab="live">Live</button>
-          <button class="nav-tab" data-tab="games">Games</button>
-          <button class="nav-tab" data-tab="chats">Chats</button>
-          <button class="nav-tab" data-tab="profiles">Profiles</button>
-        </nav>
-
-        <div class="topbar__right">
-          <label class="theme-switch" aria-label="Переключить тему">
-            <input id="themeToggle" type="checkbox" />
-            <span class="theme-switch__slider"></span>
-            <span class="theme-switch__label">Light / Dark</span>
-          </label>
-          <button class="icon-btn" aria-label="Чаты">💬</button>
-          <button class="icon-btn" aria-label="Уведомления">🔔</button>
-          <button class="profile-pill" id="profilePillButton">
-            <span id="topbarAvatar" class="avatar avatar--gradient">RK</span>
-            <span>
-              <strong id="topbarName">Руслан Kviksmajk</strong>
-              <small id="topbarRole">kviksmajkmusic • developer</small>
-            </span>
-          </button>
+        <div class="topbar-actions">
+          <button id="themeToggle" class="ghost-btn">Сменить тему</button>
+          <button id="logoutButton" class="ghost-btn hidden">Выйти</button>
         </div>
       </header>
 
       <main class="layout">
-        <aside class="left-rail">
-          <section class="card profile-card">
-            <div class="profile-card__cover"></div>
-            <div class="profile-card__body">
-              <span id="profileAvatar" class="avatar avatar--xl avatar--gradient">RK</span>
-              <h1 id="profileName">Руслан Kviksmajk</h1>
-              <p id="profileBio">
-                Музыкант, автор проекта kviksmajkmusic и разработчик социальной сети NOMERCY.
-                Собираю в одном продукте контент, live-общение, профили и игровые механики.
-              </p>
-              <div class="profile-stats">
-                <div><strong>48.2K</strong><span>followers</span></div>
-                <div><strong>12</strong><span>live rooms</span></div>
-                <div><strong>3</strong><span>games online</span></div>
-              </div>
-            </div>
-          </section>
+        <section id="authView" class="auth-layout">
+          <article class="card hero-card">
+            <p class="eyebrow">Реально работающий сайт</p>
+            <h1>NOMERCY — минимальная рабочая соцсеть с аккаунтами, постами, профилями и чатами.</h1>
+            <p>
+              Здесь уже есть настоящий backend на Python + SQLite: регистрация, вход, профиль,
+              посты, лайки и личные сообщения. Это не просто UI-макет.
+            </p>
+          </article>
 
-          <section class="card profile-lab">
-            <div class="section-heading">
-              <div>
-                <p class="eyebrow">Кастомизация</p>
-                <h2>Profile Lab</h2>
-              </div>
+          <article class="card auth-card">
+            <div class="tabs">
+              <button class="auth-tab active" data-auth-tab="login">Вход</button>
+              <button class="auth-tab" data-auth-tab="register">Регистрация</button>
             </div>
-            <div class="lab-form">
+
+            <form id="loginForm" class="auth-form active">
               <label>
-                <span>Имя профиля</span>
-                <input id="nameInput" type="text" value="Руслан Kviksmajk" maxlength="28" />
+                <span>Логин</span>
+                <input name="handle" placeholder="например, kviksmajk" required />
               </label>
               <label>
-                <span>Описание</span>
-                <textarea id="bioInput" rows="3">Музыкант, автор проекта kviksmajkmusic и разработчик социальной сети NOMERCY. Собираю в одном продукте контент, live-общение, профили и игровые механики.</textarea>
+                <span>Пароль</span>
+                <input name="password" type="password" placeholder="пароль" required />
               </label>
-              <div class="lab-grid">
+              <button class="primary-btn" type="submit">Войти</button>
+            </form>
+
+            <form id="registerForm" class="auth-form">
+              <label>
+                <span>Имя</span>
+                <input name="name" placeholder="Твоё имя" required />
+              </label>
+              <label>
+                <span>Логин</span>
+                <input name="handle" placeholder="уникальный логин" required />
+              </label>
+              <label>
+                <span>Пароль</span>
+                <input name="password" type="password" placeholder="придумай пароль" required />
+              </label>
+              <button class="primary-btn" type="submit">Создать аккаунт</button>
+            </form>
+
+            <p class="hint-text">
+              Демо-аккаунты: <code>kviksmajk / nomercy123</code>, <code>lisastone / design123</code>.
+            </p>
+            <p id="authMessage" class="message-text"></p>
+          </article>
+        </section>
+
+        <section id="appView" class="app-layout hidden">
+          <aside class="left-rail">
+            <article class="card profile-card">
+              <div class="profile-cover"></div>
+              <div class="profile-body">
+                <div id="profileAvatar" class="avatar">RK</div>
+                <h2 id="profileName">Руслан Kviksmajk</h2>
+                <p id="profileHandle">@kviksmajk</p>
+                <p id="profileBio">Музыкант, автор kviksmajkmusic и разработчик NOMERCY.</p>
+              </div>
+            </article>
+
+            <article class="card profile-edit-card">
+              <div class="section-head">
+                <h3>Редактировать профиль</h3>
+              </div>
+              <form id="profileForm" class="stack-form">
                 <label>
-                  <span>Тема профиля</span>
-                  <select id="themeSelect">
-                    <option value="gradient">Blue Flame</option>
-                    <option value="sunset">Sunset Pulse</option>
-                    <option value="neo">Neo Mint</option>
-                    <option value="night">Night Violet</option>
-                  </select>
+                  <span>Имя</span>
+                  <input id="profileNameInput" required />
+                </label>
+                <label>
+                  <span>Био</span>
+                  <textarea id="profileBioInput" rows="3"></textarea>
                 </label>
                 <label>
                   <span>Статус</span>
-                  <select id="statusSelect">
-                    <option value="В онлайне">В онлайне</option>
-                    <option value="В эфире">В эфире</option>
-                    <option value="На связи">На связи</option>
-                    <option value="В студии">В студии</option>
+                  <input id="profileStatusInput" placeholder="Например, В онлайне" />
+                </label>
+                <label>
+                  <span>Тема профиля</span>
+                  <select id="profileThemeInput">
+                    <option value="dark">Dark</option>
+                    <option value="light">Light</option>
                   </select>
                 </label>
+                <button class="primary-btn" type="submit">Сохранить профиль</button>
+              </form>
+            </article>
+          </aside>
+
+          <section class="feed-column">
+            <article class="card composer-card">
+              <div class="section-head">
+                <h3>Создать пост</h3>
+                <span class="pill">живой feed</span>
               </div>
-              <button id="applyProfile" class="primary-btn">Применить изменения</button>
-            </div>
+              <form id="postForm" class="stack-form">
+                <textarea id="postInput" rows="4" placeholder="Что нового в NOMERCY?"></textarea>
+                <button class="primary-btn" type="submit">Опубликовать</button>
+              </form>
+            </article>
+
+            <article class="card feed-card">
+              <div class="section-head">
+                <h3>Лента</h3>
+                <span class="hint-text">настоящие записи из SQLite</span>
+              </div>
+              <div id="feedList" class="feed-list"></div>
+            </article>
           </section>
 
-          <section class="card shortcuts-card">
-            <div class="section-heading">
-              <h2>Разделы</h2>
-            </div>
-            <div class="shortcut-list">
-              <button class="shortcut-btn" data-tab-target="feed">📰 Главная лента</button>
-              <button class="shortcut-btn" data-tab-target="live">📡 Live rooms</button>
-              <button class="shortcut-btn" data-tab-target="games">🕹 NOMERCY Arcade</button>
-              <button class="shortcut-btn" data-tab-target="chats">💬 Чаты</button>
-              <button class="shortcut-btn" data-tab-target="profiles">👤 Профили</button>
-            </div>
-          </section>
-        </aside>
+          <aside class="right-rail">
+            <article class="card users-card">
+              <div class="section-head">
+                <h3>Пользователи</h3>
+                <span class="pill">online social</span>
+              </div>
+              <div id="userList" class="user-list"></div>
+            </article>
 
-        <section class="feed-column">
-          <section class="hero card">
-            <div>
-              <p class="eyebrow">Автор соцсети</p>
-              <h1>NOMERCY создан Русланом Kviksmajk — музыкантом, автором kviksmajkmusic и разработчиком.</h1>
-              <p>
-                Это современная social-платформа с рабочими вкладками, профилями, живыми чатами,
-                светлой/тёмной темой и собственными игровыми механиками внутри продукта.
-              </p>
-            </div>
-            <div class="hero-badge">
-              <span id="heroStatusDot" class="status-dot"></span>
-              <strong id="heroStatus">В онлайне</strong>
-              <small>режим автора NOMERCY</small>
-            </div>
-          </section>
-
-          <div class="panel-stack">
-            <section class="tab-panel active" data-panel="feed">
-              <section class="stories card">
-                <div class="section-heading">
-                  <h2>Stories</h2>
-                  <button class="ghost-btn">Все истории</button>
-                </div>
-                <div class="story-list">
-                  <article class="story story--create">
-                    <div class="story__cover story-bg-1"></div>
-                    <div class="story__meta">
-                      <span class="story__plus">+</span>
-                      <strong>Создать историю</strong>
-                    </div>
-                  </article>
-                  <article class="story">
-                    <div class="story__cover story-bg-2"></div>
-                    <div class="story__meta"><span class="avatar avatar--sm avatar--pink">LS</span><strong>Lisa</strong></div>
-                  </article>
-                  <article class="story">
-                    <div class="story__cover story-bg-3"></div>
-                    <div class="story__meta"><span class="avatar avatar--sm avatar--blue">DN</span><strong>Dan</strong></div>
-                  </article>
-                  <article class="story">
-                    <div class="story__cover story-bg-4"></div>
-                    <div class="story__meta"><span class="avatar avatar--sm avatar--gold">MR</span><strong>Mira</strong></div>
-                  </article>
-                </div>
-              </section>
-
-              <section class="card composer">
-                <div class="composer__top">
-                  <span id="composerAvatar" class="avatar avatar--gradient">RK</span>
-                  <label class="composer__input-wrap">
-                    <textarea id="postInput" rows="3" placeholder="Что нового, Руслан?"></textarea>
-                  </label>
-                </div>
-                <div class="composer__bottom">
-                  <div class="composer-tools">
-                    <button class="chip-btn">🎵 Музыка</button>
-                    <button class="chip-btn">📷 Фото</button>
-                    <button class="chip-btn">📡 Live</button>
-                    <button class="chip-btn">🎮 Игра</button>
-                  </div>
-                  <div class="composer-actions">
-                    <select id="postCategory" class="control-select">
-                      <option value="all">Общий пост</option>
-                      <option value="music">Music</option>
-                      <option value="tech">Tech</option>
-                      <option value="community">Community</option>
-                      <option value="gaming">Gaming</option>
-                    </select>
-                    <button id="publishButton" class="primary-btn">Опубликовать</button>
-                  </div>
-                </div>
-              </section>
-
-              <section class="feed-toolbar card">
-                <div>
-                  <p class="eyebrow">Лента</p>
-                  <h2>Публикации из мира музыки, сообщества, live и игр</h2>
-                </div>
-                <div class="filter-group">
-                  <button class="filter-chip active" data-filter="all">Все</button>
-                  <button class="filter-chip" data-filter="music">Music</button>
-                  <button class="filter-chip" data-filter="tech">Tech</button>
-                  <button class="filter-chip" data-filter="community">Community</button>
-                  <button class="filter-chip" data-filter="gaming">Gaming</button>
-                </div>
-              </section>
-
-              <section id="feedList" class="feed-list" aria-live="polite"></section>
-            </section>
-
-            <section class="tab-panel" data-panel="live">
-              <section class="card live-panel">
-                <div class="section-heading">
-                  <div>
-                    <p class="eyebrow">Онлайн сейчас</p>
-                    <h2>Live Pulse</h2>
-                  </div>
-                  <button id="refreshLive" class="ghost-btn">Обновить live</button>
-                </div>
-                <div class="live-grid">
-                  <article class="live-feature">
-                    <div class="live-orb"></div>
-                    <div>
-                      <strong id="liveHeadline">14 creator rooms активны</strong>
-                      <p id="liveDescription">Сейчас обсуждают музыку, запуск альбомов, визуал клипов и игровые стримы.</p>
-                    </div>
-                  </article>
-                  <div class="live-stats">
-                    <article><strong id="liveCreators">312</strong><span>авторов в эфире</span></article>
-                    <article><strong id="liveGames">9</strong><span>игровых комнат</span></article>
-                    <article><strong id="liveViewers">27.4K</strong><span>зрителей онлайн</span></article>
-                  </div>
-                </div>
-              </section>
-            </section>
-
-            <section class="tab-panel" data-panel="games">
-              <section class="card games-hub">
-                <div class="section-heading">
-                  <div>
-                    <p class="eyebrow">Свои игры</p>
-                    <h2>NOMERCY Arcade</h2>
-                  </div>
-                </div>
-                <div class="games-grid">
-                  <article class="game-card">
-                    <div class="game-card__head">
-                      <h3>Tap Rush</h3>
-                      <span class="game-tag">Reaction game</span>
-                    </div>
-                    <p>Нажимай как можно быстрее за 10 секунд и делись результатом в ленте.</p>
-                    <div class="game-scoreboard">
-                      <strong id="tapScore">0</strong>
-                      <span>очков</span>
-                    </div>
-                    <div class="game-actions">
-                      <button id="startTapRush" class="primary-btn">Старт</button>
-                      <button id="tapRushButton" class="ghost-btn" disabled>Тап!</button>
-                    </div>
-                    <p id="tapRushTimer" class="game-caption">Нажми «Старт», чтобы начать раунд.</p>
-                  </article>
-
-                  <article class="game-card">
-                    <div class="game-card__head">
-                      <h3>Color Match</h3>
-                      <span class="game-tag">Memory game</span>
-                    </div>
-                    <p>Запомни последовательность огней и повтори её. С каждым раундом сложнее.</p>
-                    <div class="memory-board">
-                      <button class="memory-tile tile-1" data-tile="0"></button>
-                      <button class="memory-tile tile-2" data-tile="1"></button>
-                      <button class="memory-tile tile-3" data-tile="2"></button>
-                      <button class="memory-tile tile-4" data-tile="3"></button>
-                    </div>
-                    <div class="game-actions">
-                      <button id="startMemoryGame" class="primary-btn">Новая игра</button>
-                      <span id="memoryStatus" class="game-caption">Готов? Запусти игру.</span>
-                    </div>
-                  </article>
-                </div>
-              </section>
-            </section>
-
-            <section class="tab-panel" data-panel="chats">
-              <section class="card chats-panel">
-                <div class="section-heading">
-                  <div>
-                    <p class="eyebrow">Рабочие чаты</p>
-                    <h2>Messages</h2>
-                  </div>
-                </div>
-                <div class="chat-guide card-subtle">
-                  <strong>Как общаться с пользователем онлайн</strong>
-                  <p>
-                    Открой диалог, напиши сообщение, используй быстрые реплики ниже и смотри на
-                    typing-индикатор — NOMERCY показывает живой сценарий онлайн-общения прямо в интерфейсе.
-                  </p>
-                </div>
-                <div class="chats-layout">
-                  <aside id="chatList" class="chat-list"></aside>
-                  <div class="chat-window">
-                    <div class="chat-window__header">
-                      <div class="chat-window__user">
-                        <span id="activeChatAvatar" class="avatar avatar--sm avatar--pink">LS</span>
-                        <div>
-                          <strong id="activeChatName">Lisa Stone</strong>
-                          <p id="activeChatStatus">В сети сейчас</p>
-                        </div>
-                      </div>
-                      <span class="online-badge">live chat</span>
-                    </div>
-                    <div id="chatMessages" class="chat-messages"></div>
-                    <div id="typingIndicator" class="typing-indicator hidden">Собеседник печатает…</div>
-                    <div class="quick-replies">
-                      <button class="quick-reply" data-quick-reply="Привет! Как дела в NOMERCY?">Привет 👋</button>
-                      <button class="quick-reply" data-quick-reply="Когда следующий эфир?">Когда эфир?</button>
-                      <button class="quick-reply" data-quick-reply="Покажи мне свой профиль в NOMERCY">Покажи профиль</button>
-                    </div>
-                    <div class="chat-compose">
-                      <input id="chatInput" type="text" placeholder="Напиши сообщение..." />
-                      <button id="sendChatButton" class="primary-btn">Отправить</button>
-                    </div>
-                  </div>
-                </div>
-              </section>
-            </section>
-
-            <section class="tab-panel" data-panel="profiles">
-              <section class="card profiles-panel">
-                <div class="section-heading">
-                  <div>
-                    <p class="eyebrow">Рабочие профили</p>
-                    <h2>People of NOMERCY</h2>
-                  </div>
-                </div>
-                <div class="profiles-layout">
-                  <div id="profileGrid" class="profile-grid"></div>
-                  <article class="profile-spotlight card-subtle">
-                    <div class="profile-spotlight__top">
-                      <span id="spotlightAvatar" class="avatar avatar--xl avatar--gradient">RK</span>
-                      <div>
-                        <h3 id="spotlightName">Руслан Kviksmajk</h3>
-                        <p id="spotlightRole">kviksmajkmusic • разработчик NOMERCY</p>
-                      </div>
-                    </div>
-                    <p id="spotlightBio">Музыкант, автор kviksmajkmusic и создатель NOMERCY.</p>
-                    <div class="profile-spotlight__actions">
-                      <button id="openSpotlightChat" class="primary-btn">Открыть чат</button>
-                      <button id="useSpotlightProfile" class="ghost-btn">Сделать активным профилем</button>
-                    </div>
-                  </article>
-                </div>
-              </section>
-            </section>
-          </div>
+            <article class="card chat-card">
+              <div class="section-head">
+                <h3>Личные сообщения</h3>
+                <span id="chatPeerStatus" class="hint-text">Выбери собеседника</span>
+              </div>
+              <div id="chatList" class="chat-list"></div>
+              <div id="chatWindow" class="chat-window hidden">
+                <div id="chatHeader" class="chat-header"></div>
+                <div id="messageList" class="message-list"></div>
+                <form id="messageForm" class="chat-form">
+                  <input id="messageInput" placeholder="Напиши сообщение пользователю..." />
+                  <button class="primary-btn" type="submit">Отправить</button>
+                </form>
+              </div>
+            </article>
+          </aside>
         </section>
-
-        <aside class="right-rail">
-          <section class="card trending-card">
-            <div class="section-heading">
-              <h2>В тренде</h2>
-              <button class="ghost-btn">Смотреть всё</button>
-            </div>
-            <ul class="trend-list">
-              <li><span>#kviksmajkmusic</span><strong>420K постов</strong></li>
-              <li><span>#nomercylive</span><strong>214K постов</strong></li>
-              <li><span>#nomercychat</span><strong>118K постов</strong></li>
-              <li><span>#nomercyarcade</span><strong>89K постов</strong></li>
-            </ul>
-          </section>
-
-          <section class="card contacts-card">
-            <div class="section-heading">
-              <h2>Контакты</h2>
-              <span class="online-badge">18 online</span>
-            </div>
-            <div id="quickContactList" class="contact-list"></div>
-          </section>
-
-          <section class="card city-card">
-            <div class="section-heading">
-              <div>
-                <p class="eyebrow">Глобально</p>
-                <h2>City Radar</h2>
-              </div>
-            </div>
-            <div class="city-map">
-              <span class="map-dot dot-1"></span>
-              <span class="map-dot dot-2"></span>
-              <span class="map-dot dot-3"></span>
-              <span class="map-dot dot-4"></span>
-            </div>
-            <div class="city-list">
-              <div><strong>Москва</strong><span>12 music streams</span></div>
-              <div><strong>Berlin</strong><span>6 gaming rooms</span></div>
-              <div><strong>Tokyo</strong><span>11 creator spikes</span></div>
-            </div>
-          </section>
-        </aside>
       </main>
     </div>
 
     <template id="postTemplate">
-      <article class="card post-card">
-        <header class="post-card__head">
-          <div class="post-author">
-            <span class="avatar avatar--gradient" data-avatar>RK</span>
-            <div>
-              <h3 data-author>Руслан Kviksmajk</h3>
-              <p data-meta>Только что · В онлайне</p>
-            </div>
+      <article class="post-item">
+        <div class="post-head">
+          <div>
+            <strong data-author></strong>
+            <p data-meta></p>
           </div>
-          <button class="ghost-btn ghost-btn--icon">•••</button>
-        </header>
-        <div class="post-card__body">
-          <div class="post-topline">
-            <span class="post-tag" data-category-label>General</span>
-            <span class="post-status" data-status>В онлайне</span>
-          </div>
-          <p class="post-text" data-text></p>
-          <div class="post-visual">
-            <div class="visual-card visual-card--main" data-visual-title></div>
-            <div class="visual-card visual-card--sub" data-visual-accent></div>
-          </div>
+          <button class="ghost-btn like-btn" data-like-button>❤</button>
         </div>
-        <footer class="post-card__footer">
-          <div class="post-stats">
-            <span data-likes>0 likes</span>
-            <span data-comments>0 comments</span>
-            <span data-shares>0 shares</span>
-          </div>
-          <div class="post-actions">
-            <button class="post-action" data-action="like">👍 Нравится</button>
-            <button class="post-action" data-action="comment">💬 Комментировать</button>
-            <button class="post-action" data-action="share">↗ Поделиться</button>
-          </div>
-        </footer>
+        <p class="post-content" data-content></p>
+        <div class="post-footer">
+          <span data-likes></span>
+        </div>
       </article>
-    </template>
-
-    <template id="chatListItemTemplate">
-      <button class="chat-list__item">
-        <span class="avatar avatar--sm avatar--pink" data-chat-avatar>LS</span>
-        <span class="chat-list__meta">
-          <strong data-chat-name>Lisa Stone</strong>
-          <small data-chat-preview>Новый трек звучит сильно.</small>
-        </span>
-      </button>
-    </template>
-
-    <template id="profileCardTemplate">
-      <button class="profile-card-mini">
-        <span class="avatar avatar--sm avatar--gradient" data-profile-avatar>RK</span>
-        <div>
-          <strong data-profile-name>Руслан Kviksmajk</strong>
-          <small data-profile-role>creator</small>
-        </div>
-      </button>
     </template>
 
     <script src="script.js"></script>
