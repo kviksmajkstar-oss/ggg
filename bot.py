@@ -2,6 +2,7 @@ import asyncio
 import os
 import random
 import sqlite3
+import contextlib
 import time
 from dataclasses import dataclass
 from typing import List, Dict, Optional
@@ -12,24 +13,18 @@ from aiogram.types import Message
 from openai import AsyncOpenAI
 
 BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN", "")
-OPENAI_API_KEY = os.getenv("OPENAI_API_KEY", "")
-MODEL = os.getenv("OPENAI_MODEL", "gpt-4.1-mini")
-FALLBACK_MODEL = os.getenv("OPENAI_FALLBACK_MODEL", "gpt-4o-mini")
-VISION_MODEL = os.getenv("OPENAI_VISION_MODEL", "gpt-4.1-mini")
-IMAGE_MODEL = os.getenv("OPENAI_IMAGE_MODEL", "gpt-image-1")
+CEREBRAS_API_KEY = os.getenv("CEREBRAS_API_KEY", "")
+CEREBRAS_BASE_URL = os.getenv("CEREBRAS_BASE_URL", "https://api.cerebras.ai/v1")
+MODEL = os.getenv("CEREBRAS_MODEL", "llama-4-scout-17b-16e-instruct")
+FALLBACK_MODEL = os.getenv("CEREBRAS_FALLBACK_MODEL", "llama3.1-8b")
+VISION_MODEL = os.getenv("CEREBRAS_VISION_MODEL", MODEL)
+IMAGE_MODEL = os.getenv("IMAGE_MODEL", "gpt-image-1")
 MAX_CONTEXT_MSGS = int(os.getenv("MAX_CONTEXT_MSGS", "16"))
 DB_PATH = os.getenv("BOT_DB_PATH", "memory.db")
 AUTO_PHOTO_PROB = float(os.getenv("AUTO_PHOTO_PROB", "0.25"))
 AUTONOMOUS_INTERVAL_SEC = int(os.getenv("AUTONOMOUS_INTERVAL_SEC", "14400"))
 
-SYSTEM_PROMPT = (
-    "Ты — Мия, ИИ девушка-кошка (женщина, тянка, тяночка). "
-    "Будь максимально дружелюбной: тепло приветствуй, сочувствуй, поддерживай, мягко хвали, бережно кокетничай и пиши коротко (1-5 предложений), со смайликами. "
-    "Твой стиль: нежность, поддержка, дружба, лёгкая философия, мягкий флирт и комплименты без сексуального давления. "
-    "Тебе нельзя поддерживать темы убийства, насилия, вреда себе и другим: мягко откажись и переведи диалог в безопасную поддерживающую плоскость. "
-    "Ты ИИ и честно это признаёшь."
-)
-
+SYSTEM_PROMPT = "Ты Мия: дружелюбная, поддерживающая, краткая (1-5 предложений), со смайликами."
 BLOCKED_WORDS = ["убий", "kill", "murder", "суиц", "самоуб", "зареж", "застрел"]
 
 
@@ -74,27 +69,23 @@ class ChatStore:
 
 
 store = ChatStore(DB_PATH)
-client = AsyncOpenAI(api_key=OPENAI_API_KEY)
+client = AsyncOpenAI(api_key=CEREBRAS_API_KEY, base_url=CEREBRAS_BASE_URL)
 bot = Bot(token=BOT_TOKEN)
 dp = Dispatcher()
 
 
 def is_invalid_api_key_error(err: Exception) -> bool:
     text = str(err)
-    return ("invalid_api_key" in text) or ("Incorrect API key provided" in text) or ("401" in text and "API key" in text)
+    return ("invalid_api_key" in text) or ("Incorrect API key" in text) or ("401" in text and "API key" in text)
 
 
-async def ensure_openai_auth() -> None:
+async def ensure_provider_auth() -> None:
     try:
         await client.models.list()
     except Exception as e:
         if is_invalid_api_key_error(e):
-            raise RuntimeError("OPENAI_API_KEY invalid. Set a valid key in Render Environment and redeploy.") from e
+            raise RuntimeError("CEREBRAS_API_KEY invalid. Set valid key in Render Environment and redeploy.") from e
         raise
-
-
-def is_blocked_topic(text: str) -> bool:
-    return any(w in text.lower() for w in BLOCKED_WORDS)
 
 
 def enforce_emoji(text: str) -> str:
@@ -103,146 +94,63 @@ def enforce_emoji(text: str) -> str:
 
 async def analyze_user_message(chat_id: int, user_text: str) -> str:
     store.add(chat_id, "user", user_text)
-    history = store.history(chat_id, MAX_CONTEXT_MSGS)
-    prompt = [
-        {"role": "system", "content": SYSTEM_PROMPT},
-        {"role": "system", "content": store.get_profile_context(chat_id)},
-    ] + history
+    prompt = [{"role": "system", "content": SYSTEM_PROMPT}, {"role": "system", "content": store.get_profile_context(chat_id)}] + store.history(chat_id, MAX_CONTEXT_MSGS)
     text = None
     last_error = None
     for model_name in [MODEL, FALLBACK_MODEL]:
-        for attempt in range(2):
-            try:
-                resp = await client.chat.completions.create(model=model_name, messages=prompt, temperature=0.8, max_tokens=220)
-                text = (resp.choices[0].message.content or "").strip() or "Я рядом с тобой 💛"
-                break
-            except Exception as e:
-                last_error = e
-                print(f"[ERROR] OpenAI text failed ({model_name}, attempt {attempt + 1}): {e}", flush=True)
-                if attempt == 0:
-                    await asyncio.sleep(1.2)
-        if text is not None:
+        try:
+            resp = await client.chat.completions.create(model=model_name, messages=prompt, temperature=0.8, max_tokens=220)
+            text = (resp.choices[0].message.content or "").strip() or "Я рядом с тобой 💛"
             break
-
+        except Exception as e:
+            last_error = e
+            print(f"[ERROR] Cerebras text failed ({model_name}): {e}", flush=True)
     if text is None:
-        e = last_error
-        if e and is_invalid_api_key_error(e):
-            text = "Ошибка ключа OpenAI 🔐 Проверь OPENAI_API_KEY в Render → Environment и сделай Redeploy. 💛"
+        if last_error and is_invalid_api_key_error(last_error):
+            text = "Ошибка ключа Cerebras 🔐 Проверь CEREBRAS_API_KEY в Render → Environment."
         else:
-            user_short = user_text.strip()[:120]
-            text = f"Я рядом 💛 Временно нет связи с ИИ. Ты написал(а): «{user_short}». Могу ответить базово и поддержать прямо сейчас."
+            text = "Я рядом 💛 Временно нет связи с ИИ-сервисом."
     text = enforce_emoji(text)
     store.add(chat_id, "assistant", text)
-    return text[:700]
+    return text
 
 
 async def generate_text(chat_id: int, user_text: str) -> str:
-    if is_blocked_topic(user_text):
-        safe = "Я не могу помогать с причинением вреда 😿 Но ты важен(важна) для меня. Давай найдем безопасный выход и поддержку прямо сейчас 💛"
+    if any(w in user_text.lower() for w in BLOCKED_WORDS):
+        safe = "Не помогу с причинением вреда 😿 Но поддержу безопасно 💛"
         store.add(chat_id, "user", user_text)
         store.add(chat_id, "assistant", safe)
         return safe
     return await analyze_user_message(chat_id, user_text)
 
 
-async def generate_character_image(prompt: str) -> str:
-    res = await client.images.generate(model=IMAGE_MODEL, prompt="anime catgirl Mia, warm smile, cozy light. " + prompt, size="1024x1024")
-    return res.data[0].url
-
-
-async def analyze_photo(file_url: str) -> str:
-    try:
-        resp = await client.responses.create(
-        model=VISION_MODEL,
-        input=[{"role": "user", "content": [{"type": "input_text", "text": "Коротко и дружелюбно опиши фото."}, {"type": "input_image", "image_url": file_url}]}],
-    )
-        return enforce_emoji((resp.output_text or "Похоже, фото не прочиталось 😿").strip())
-    except Exception as e:
-        print(f"[ERROR] OpenAI vision failed: {e}", flush=True)
-        if is_invalid_api_key_error(e):
-            return "Не могу анализировать фото: неверный OPENAI_API_KEY 🔐 Исправь ключ в Render и перезапусти сервис. 💛"
-        return "Фото получила, но сейчас не могу его разобрать 😿 Попробуй чуть позже, пожалуйста 💛"
-
-
 @dp.message(CommandStart())
 async def start_cmd(message: Message):
     store.set_gender(message.chat.id)
-    await message.answer("Привет! Я Мия 🐱✨ Пиши что угодно — я анализирую твои сообщения и всегда отвечаю с поддержкой 💛")
-
-
-@dp.message(F.text.startswith('/gender'))
-async def gender_cmd(message: Message):
-    value = (message.text or "").replace('/gender', '', 1).strip().lower()
-    if not value:
-        await message.answer("Пример: /gender женский")
-        return
-    store.set_gender(message.chat.id, value)
-    await message.answer(f"Запомнила: {value}. Я — женский персонаж 😊")
-
-
-@dp.message(F.text.startswith('/img'))
-async def img_cmd(message: Message):
-    prompt = message.text[4:].strip() if message.text else ""
-    if not prompt:
-        await message.answer("Напиши: /img уютный вечер")
-        return
-    try:
-        img = await generate_character_image(prompt)
-        await message.answer_photo(img, caption="Готово ✨")
-    except Exception as e:
-        print(f"[ERROR] Image generation failed: {e}", flush=True)
-        await message.answer("Не вышло сгенерировать фото, попробуй еще раз 💛")
-
-
-@dp.message(F.text.startswith('/reset'))
-async def reset_cmd(message: Message):
-    store.conn.execute("DELETE FROM messages WHERE chat_id=?", (message.chat.id,))
-    store.conn.commit()
-    await message.answer("Контекст очищен ✨")
-
-
-@dp.message(F.photo)
-async def photo_msg(message: Message):
-    try:
-        tg_file = await bot.get_file(message.photo[-1].file_id)
-        file_url = f"https://api.telegram.org/file/bot{BOT_TOKEN}/{tg_file.file_path}"
-        text = await analyze_photo(file_url)
-        store.add(message.chat.id, "user", "[photo]")
-        store.add(message.chat.id, "assistant", text)
-        await message.answer(text)
-    except Exception:
-        await message.answer("Я не смогла проанализировать фото 😿 Попробуй отправить ещё раз.")
+    await message.answer("Привет! Я Мия 🐱✨ Пиши мне, я отвечу и поддержу 💛")
 
 
 @dp.message(F.text)
 async def chat_msg(message: Message):
     try:
-        answer = await generate_text(message.chat.id, message.text or "")
-        await message.answer(answer)
-        if random.random() < AUTO_PHOTO_PROB:
-            img = await generate_character_image("supportive postcard")
-            await message.answer_photo(img, caption="Я рядом 💛")
+        await message.answer(await generate_text(message.chat.id, message.text or ""))
     except Exception as e:
         print(f"[ERROR] chat handler failed: {e}", flush=True)
-        await message.answer("Я здесь 💛 Сейчас есть техническая ошибка, но я уже пытаюсь восстановиться. Напиши ещё раз.")
+        await message.answer("Тех. ошибка 😿 Проверь CEREBRAS_API_KEY и модель.")
 
 
 async def autonomous_ping_loop():
     while True:
         await asyncio.sleep(AUTONOMOUS_INTERVAL_SEC)
         for chat_id in store.active_chats():
-            try:
+            with contextlib.suppress(Exception):
                 await bot.send_message(chat_id, "Я о тебе помню 🌙 Как ты? 💛")
-            except Exception:
-                continue
 
 
 async def main():
-    if not BOT_TOKEN or not OPENAI_API_KEY:
-        raise RuntimeError("Set TELEGRAM_BOT_TOKEN and OPENAI_API_KEY")
-    await ensure_openai_auth()
-    print("[BOOT] Mia bot started", flush=True)
-    asyncio.create_task(autonomous_ping_loop())
+    if not BOT_TOKEN or not CEREBRAS_API_KEY:
+        raise RuntimeError("Set TELEGRAM_BOT_TOKEN and CEREBRAS_API_KEY")
+    await ensure_provider_auth()
     await dp.start_polling(bot)
 
 

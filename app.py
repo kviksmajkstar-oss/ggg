@@ -4,7 +4,7 @@ from contextlib import suppress
 
 from fastapi import FastAPI
 
-from bot import dp, bot, BOT_TOKEN, OPENAI_API_KEY, autonomous_ping_loop, ensure_openai_auth
+from bot import dp, bot, BOT_TOKEN, CEREBRAS_API_KEY, autonomous_ping_loop, ensure_provider_auth
 
 app = FastAPI(title="Mia Bot Service")
 _polling_task: asyncio.Task | None = None
@@ -14,9 +14,9 @@ _ping_task: asyncio.Task | None = None
 @app.on_event("startup")
 async def on_startup():
     global _polling_task, _ping_task
-    if not BOT_TOKEN or not OPENAI_API_KEY:
-        raise RuntimeError("Set TELEGRAM_BOT_TOKEN and OPENAI_API_KEY")
-    await ensure_openai_auth()
+    if not BOT_TOKEN or not CEREBRAS_API_KEY:
+        raise RuntimeError("Set TELEGRAM_BOT_TOKEN and CEREBRAS_API_KEY")
+    await ensure_provider_auth()
 
     async def _run_polling():
         await dp.start_polling(bot)
